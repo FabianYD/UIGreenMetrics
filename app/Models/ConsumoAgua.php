@@ -29,4 +29,11 @@ class ConsumoAgua extends Model
         return $this->belongsTo(TypeUnidadMedAgua::class, 'consag_id', 'consag_id');
     }
 
+     // Relación con reutilización de agua
+     public function reutilizacionAgua()
+{
+    return $this->hasOne(ReutilizacionAgua::class, 'consag_id', 'consag_id');
+}
+
+
 }

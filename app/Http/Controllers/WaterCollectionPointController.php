@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WaterCollectionPoint;
-use App\Services\WaterStatisticsService;
-
 use App\Models\TratamientoAgua;
 use App\Models\TipoTratamiento;
 use App\Models\ConsumoAgua;
 use App\Models\MedidorAgua;
 use App\Models\Campus;
+use App\Models\ReutilizacionAgua;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WaterCollectionPointController extends Controller
 {
@@ -19,21 +18,29 @@ class WaterCollectionPointController extends Controller
      */
     public function index()
 {
+    // Ejecutar los cálculos
+    $this->calcularSostenibilidad();
+    $this->calcularSostenibilidadReciclada();
+
+    // Obtener datos actualizados
     $tratamientos = TratamientoAgua::with([
         'tipoTratamiento',
         'consumoAgua.medidorAgua.campus.universidad',
-        'consumoAgua.unidadMedida' // Asegúrate de incluir esta relación
+        'consumoAgua.unidadMedida'
     ])->get();
 
-    return view('water-points.index', compact('tratamientos'));
-}
+    $reutilizaciones = ReutilizacionAgua::with('consumoAgua.medidorAgua.campus.universidad')->get();
 
+    return view('water-points.sostenibilidadAgua', compact('tratamientos', 'reutilizaciones'));
+}
 
     /**
      * Calcula la sostenibilidad y eficiencia para cada tratamiento de agua.
      */
     public function calcularSostenibilidad()
     {
+        Log::info('Método calcularSostenibilidad ejecutado.');
+
         $tratamientos = TratamientoAgua::with('tipoTratamiento')->get();
 
         foreach ($tratamientos as $tratamiento) {
@@ -41,16 +48,43 @@ class WaterCollectionPointController extends Controller
             $cantidadSostenible = $tratamiento->tragua_total * $porcentajePurificacion;
             $eficiencia = ($tratamiento->tragua_total > 0) ? ($cantidadSostenible / $tratamiento->tragua_total) * 100 : 0;
 
-            // Actualizar los valores en la base de datos
             $tratamiento->update([
                 'cantidad_sostenible' => $cantidadSostenible,
                 'eficiencia' => $eficiencia,
             ]);
-        }
 
-        return redirect()->route('water-points.index')->with('success', 'Cálculos de sostenibilidad actualizados correctamente.');
+            Log::info("Tratamiento ID {$tratamiento->id}: Sostenibilidad calculada.");
+        }
     }
 
+    /**
+     * Calcula la sostenibilidad del agua reciclada.
+     */
+    public function calcularSostenibilidadReciclada()
+    {
+        Log::info('Método calcularSostenibilidadReciclada iniciado.');
+    
+        $reutilizaciones = ReutilizacionAgua::with('consumoAgua')->get();
+    
+        foreach ($reutilizaciones as $reutilizacion) {
+            if ($reutilizacion->consumoAgua) {
+                $aguaConsumida = $reutilizacion->consumoAgua->consag_total;
+                $aguaReciclada = $reutilizacion->reuag_cantidad;
+    
+                $sostenibilidad = ($aguaConsumida > 0) ? ($aguaReciclada / $aguaConsumida) * 100 : 0;
+    
+                $reutilizacion->update([
+                    'reuag_sostenibilidad' => round($sostenibilidad, 2),
+                ]);
+    
+                Log::info("Reutilización ID {$reutilizacion->id}: Sostenibilidad calculada como {$sostenibilidad}%.");
+            } else {
+                Log::warning("Reutilización ID {$reutilizacion->id}: No se encontró un consumo de agua asociado.");
+            }
+        }
+    
+        Log::info('Método calcularSostenibilidadReciclada finalizado.');
+    }
     /**
      * Muestra el formulario para crear un nuevo punto de recolección.
      */

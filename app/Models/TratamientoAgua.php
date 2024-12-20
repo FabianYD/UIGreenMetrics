@@ -41,4 +41,10 @@ class TratamientoAgua extends Model
             'consag_id'               // Local key en ConsumoAgua
         );
     }
+
+    public function reutilizacionAgua()
+    {
+        return $this->hasMany(ReutilizacionAgua::class, 'consag_id', 'consag_id');
+    }
+
 }
