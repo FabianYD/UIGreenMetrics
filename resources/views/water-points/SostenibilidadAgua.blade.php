@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appWater')
 
 @section('content')
 <div class="container mt-5">
@@ -13,6 +13,7 @@
                 <th>Campus</th>
                 <th>Código Medidor</th>
                 <th>Agua Consumida</th>
+                <th>Medida</th>
                 <th>Agua Reciclada</th>
                 <th>Detalles</th>
                 <th>Sostenibilidad (%)</th>
@@ -25,6 +26,7 @@
         <td>{{ $reutilizacion->consumoAgua->medidorAgua->campus->campus_nombres }}</td>
         <td>{{ $reutilizacion->consumoAgua->medidorAgua->medag_id }}</td>
         <td>{{ $reutilizacion->consumoAgua->consag_total }}</td>
+        <td>{{ $reutilizacion->consumoAgua->unidadMedida->medidaagu_nombre }} </td>
         <td>{{ $reutilizacion->reuag_cantidad }}</td>
         <td>{{ $reutilizacion->reuag_detalle }}</td>
         <td>{{ $reutilizacion->reuag_sostenibilidad }}</td>
@@ -47,6 +49,7 @@
                 <th>Campus</th>
                 <th>Código Medidor</th>
                 <th>Agua Consumida</th>
+                <th>Medida</th>
                 <th>Tipo de Tratamiento</th>
                 <th>Total Tratado</th>
                 <th>Cantidad Sostenible</th>
@@ -59,10 +62,8 @@
                     <td>{{ $tratamiento->consumoAgua->medidorAgua->campus->universidad->uni_nombres }}</td>
                     <td>{{ $tratamiento->consumoAgua->medidorAgua->campus->campus_nombres }}</td>
                     <td>{{ $tratamiento->consumoAgua->medidorAgua->medag_id }}</td>
-                    <td>
-                        {{ $tratamiento->consumoAgua->consag_total }}
-                        {{ $tratamiento->consumoAgua->unidadMedida->medidaagu_nombre }}
-                    </td>
+                    <td>{{ $tratamiento->consumoAgua->consag_total }}</td>
+                    <td>{{ $tratamiento->consumoAgua->unidadMedida->medidaagu_nombre }} </td>
                     <td>{{ $tratamiento->tipoTratamiento->tipotra_nombres }}</td>
                     <td>{{ $tratamiento->tragua_total }}</td>
                     <td>{{ $tratamiento->cantidad_sostenible }}</td>

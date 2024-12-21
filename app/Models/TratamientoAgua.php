@@ -42,9 +42,4 @@ class TratamientoAgua extends Model
         );
     }
 
-    public function reutilizacionAgua()
-    {
-        return $this->hasMany(ReutilizacionAgua::class, 'consag_id', 'consag_id');
-    }
-
 }

@@ -31,4 +31,14 @@ class Campus extends Model
         return $this->hasMany(MedidorAgua::class, 'campus_id', 'campus_id');
     }
 
+    public function medidoresEnergia()
+    {
+        return $this->hasMany(MedidorEnergia::class, 'campus_id', 'campus_id');
+    }
+
+    public function facultades()
+    {
+        return $this->hasMany(Facultad::class, 'campus_id', 'campus_id');
+    }
+
 }

@@ -17,22 +17,25 @@ class WaterCollectionPointController extends Controller
      * Muestra la lista de puntos de recolección con datos calculados.
      */
     public function index()
-{
-    // Ejecutar los cálculos
-    $this->calcularSostenibilidad();
-    $this->calcularSostenibilidadReciclada();
-
-    // Obtener datos actualizados
-    $tratamientos = TratamientoAgua::with([
-        'tipoTratamiento',
-        'consumoAgua.medidorAgua.campus.universidad',
-        'consumoAgua.unidadMedida'
-    ])->get();
-
-    $reutilizaciones = ReutilizacionAgua::with('consumoAgua.medidorAgua.campus.universidad')->get();
-
-    return view('water-points.sostenibilidadAgua', compact('tratamientos', 'reutilizaciones'));
-}
+    {
+        // Ejecutar los cálculos
+        $this->calcularSostenibilidad();
+        $this->calcularSostenibilidadReciclada();
+    
+        // Obtener datos actualizados con las relaciones necesarias
+        $tratamientos = TratamientoAgua::with([
+            'tipoTratamiento',
+            'consumoAgua.medidorAgua.campus.universidad',
+            'consumoAgua.unidadMedida' // Incluyendo la relación unidadMedida para consumoAgua
+        ])->get();
+    
+        $reutilizaciones = ReutilizacionAgua::with([
+            'consumoAgua.medidorAgua.campus.universidad',
+            'consumoAgua.unidadMedida' // Incluyendo la relación unidadMedida para consumoAgua
+        ])->get();
+    
+        return view('water-points.sostenibilidadAgua', compact('tratamientos', 'reutilizaciones'));
+    }
 
     /**
      * Calcula la sostenibilidad y eficiencia para cada tratamiento de agua.

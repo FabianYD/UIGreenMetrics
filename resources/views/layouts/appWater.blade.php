@@ -21,7 +21,7 @@
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
                         <a href="/" class="text-xl font-bold text-blue-600">
-                            Sistema de Reciclaje
+                            Sistema de Gestión de Sostenibilidad Agua
                         </a>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
     <footer class="bg-white shadow mt-8 py-4">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center text-gray-500 text-sm">
-                {{ date('Y') }} Sistema de Gestión de Reciclaje de Agua. Todos los derechos reservados.
+                {{ date('Y') }} Sistema de Gestión de Sostenibilidad Agua. Todos los derechos reservados.
             </div>
         </div>
     </footer>
