@@ -1,15 +1,17 @@
-# UI Green Metrics
+# Green Metric 🌿
 
+<div style="background-color: #4CAF50; padding: 20px; border-radius: 5px; color: white;">
 Sistema de gestión para métricas ambientales desarrollado con Laravel y PostgreSQL.
+</div>
 
-## Requisitos Previos
+## 🌱 Requisitos Previos
 
 - PHP >= 8.1
 - Composer
 - PostgreSQL >= 14
 - Node.js y NPM (para assets)
 
-## Instalación
+## 🌿 Instalación
 
 1. Clonar el repositorio:
 ```bash
@@ -48,14 +50,14 @@ php artisan db:create
 php artisan migrate --seed
 ```
 
-## Credenciales por Defecto
+## 🔐 Credenciales por Defecto
 
 Después de ejecutar los seeders, podrás acceder con las siguientes credenciales:
 
 - **Email:** admin@admin.com
 - **Contraseña:** 123456
 
-## Estructura de la Base de Datos
+## 🗄️ Estructura de la Base de Datos
 
 El sistema utiliza PostgreSQL y cuenta con las siguientes tablas principales:
 
@@ -66,7 +68,7 @@ El sistema utiliza PostgreSQL y cuenta con las siguientes tablas principales:
 - `gm_wec_roles`: Roles y permisos
 - Y más tablas relacionadas con métricas ambientales
 
-## Desarrollo
+## 💻 Desarrollo
 
 Para desarrollo local, puedes usar el servidor de Laravel:
 
@@ -74,6 +76,6 @@ Para desarrollo local, puedes usar el servidor de Laravel:
 php artisan serve
 ```
 
-## Licencia
+## 📝 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
