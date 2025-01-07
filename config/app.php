@@ -107,6 +107,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | UI GreenMetric Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuración específica para la aplicación UI GreenMetric
+    |
+    */
+
+    'university_name' => env('UNIVERSITY_NAME', 'UNIVERSIDAD TECNICA DEL NORTE'),
+    'country' => env('UNIVERSITY_COUNTRY', 'ECUADOR'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
