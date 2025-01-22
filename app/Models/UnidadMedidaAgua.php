@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\ConsumoAgua;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UnidadMedidaAgua extends Model
 {
-    use HasFactory;
-
     protected $table = 'GM_WEC_TYPE_UNIDAD_MED_AGUA';
     protected $primaryKey = 'MEDIDADAG_COD';
     public $incrementing = false;
@@ -21,8 +18,7 @@ class UnidadMedidaAgua extends Model
         'MEDIDAAGU_NOMBRE'
     ];
 
-    // Relaciones
-    public function consumosAgua()
+    public function consumos(): HasMany
     {
         return $this->hasMany(ConsumoAgua::class, 'MEDIDADAG_COD', 'MEDIDADAG_COD');
     }
