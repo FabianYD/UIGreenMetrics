@@ -17,17 +17,27 @@ class ConsumoEnergia extends Model
         'TIPOENE_ID',
         'MEDENE_COD',
         'CONSENE_TOTAL',
-        'CONSENE_FECHAPAGO',
+        'CONSENE_FECHAPAGO'
     ];
 
     protected $casts = [
         'CONSENE_TOTAL' => 'decimal:2',
-        'CONSENE_FECHAPAGO' => 'date',
+        'CONSENE_FECHAPAGO' => 'date'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($consumo) {
+            $consumo->costos()->delete();
+        });
+    }
 
     public function medidor(): BelongsTo
     {
-        return $this->belongsTo(MedidorElectrico::class, 'IDMEDIDOR2', 'IDMEDIDOR2');
+        return $this->belongsTo(MedidorElectrico::class, 'IDMEDIDOR2', 'IDMEDIDOR2')
+            ->with('campus');
     }
 
     public function tipoEnergia(): BelongsTo
@@ -40,7 +50,7 @@ class ConsumoEnergia extends Model
         return $this->belongsTo(UnidadMedidaEnergia::class, 'MEDENE_COD', 'MEDENE_COD');
     }
 
-    public function costo(): HasOne
+    public function costos(): HasOne
     {
         return $this->hasOne(CostoEnergia::class, 'CONSENE_ID', 'CONSENE_ID');
     }

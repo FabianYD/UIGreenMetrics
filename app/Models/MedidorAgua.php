@@ -17,11 +17,12 @@ class MedidorAgua extends Model
     protected $fillable = [
         'MEDAG_ID',
         'CAMPUS_ID',
-        'MEDAG_FECHAADQUISICION'
+        'MEDAG_FECHAADQUISICION',
+        'MEDAG_ESTADO'
     ];
 
     protected $casts = [
-        'MEDAG_FECHAADQUISICION' => 'date'
+        'MEDAG_FECHAADQUISICION' => 'date',
     ];
 
     public function campus(): BelongsTo

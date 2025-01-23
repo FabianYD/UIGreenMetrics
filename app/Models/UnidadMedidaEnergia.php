@@ -3,13 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\ConsumoEnergia;
 
 class UnidadMedidaEnergia extends Model
 {
-    use HasFactory;
-
     protected $table = 'GM_WEC_TYPE_UNIDAD_MED_ENERGIAS';
     protected $primaryKey = 'MEDENE_COD';
     public $incrementing = false;
@@ -21,8 +19,7 @@ class UnidadMedidaEnergia extends Model
         'MEDENE_NOMBRE'
     ];
 
-    // Relaciones
-    public function consumosEnergia()
+    public function consumos(): HasMany
     {
         return $this->hasMany(ConsumoEnergia::class, 'MEDENE_COD', 'MEDENE_COD');
     }

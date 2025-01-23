@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TipoEnergia extends Model
 {
-    use HasFactory;
-
     protected $table = 'GM_WEC_TIPOS_ENERGIAS';
     protected $primaryKey = 'TIPOENE_ID';
     public $incrementing = false;
@@ -20,4 +18,9 @@ class TipoEnergia extends Model
         'TIPOENE_NOMBRES',
         'TIPOENE_DETALLE'
     ];
+
+    public function consumos(): HasMany
+    {
+        return $this->hasMany(ConsumoEnergia::class, 'TIPOENE_ID', 'TIPOENE_ID');
+    }
 }

@@ -10,19 +10,21 @@ class MedidorElectrico extends Model
 {
     protected $table = 'GM_WEC_MEDIDORES_ELECTRICOS';
     protected $primaryKey = 'IDMEDIDOR2';
+    public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
     protected $fillable = [
         'IDMEDIDOR2',
         'CAMPUS_ID',
-        'MEDAG_FECHAADQUISICION',
+        'MEDAG_FECHAADQUISICION'
     ];
 
     protected $casts = [
-        'MEDAG_FECHAADQUISICION' => 'date',
+        'MEDAG_FECHAADQUISICION' => 'date'
     ];
+
+    protected $with = ['campus'];
 
     public function campus(): BelongsTo
     {
