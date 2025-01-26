@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ConsumoAgua extends Model
 {
-    protected $table = 'GM_WEC_CONSUMO_AGUA';
+    use HasFactory;
+
+    protected $table = 'gm_wec_consumo_agua';
     protected $primaryKey = 'CONSAG_ID';
     public $timestamps = false;
 
@@ -22,33 +23,12 @@ class ConsumoAgua extends Model
     ];
 
     protected $casts = [
-        'CONSAG_TOTAL' => 'decimal:2',
-        'CONSENE_FECHAPAGO' => 'date'
+        'CONSENE_FECHAPAGO' => 'date',
+        'CONSAG_TOTAL' => 'decimal:2'
     ];
 
-    public function medidor(): BelongsTo
+    public function medidorAgua(): BelongsTo
     {
-        return $this->belongsTo(MedidorAgua::class, 'MEDAG_ID', 'MEDAG_ID')
-            ->with('campus');
-    }
-
-    public function unidadMedida(): BelongsTo
-    {
-        return $this->belongsTo(UnidadMedidaAgua::class, 'MEDIDADAG_COD', 'MEDIDADAG_COD');
-    }
-
-    public function costos(): HasOne
-    {
-        return $this->hasOne(CostoAgua::class, 'CONSAG_ID', 'CONSAG_ID');
-    }
-
-    public function tratamientos(): HasMany
-    {
-        return $this->hasMany(TratamientosAgua::class, 'CONSAG_ID', 'CONSAG_ID');
-    }
-
-    public function reutilizaciones(): HasMany
-    {
-        return $this->hasMany(ReutilizacionAguas::class, 'CONSAG_ID', 'CONSAG_ID');
+        return $this->belongsTo(MedidorAgua::class, 'MEDAG_ID', 'MEDAG_ID');
     }
 }

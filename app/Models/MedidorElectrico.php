@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MedidorElectrico extends Model
 {
-    protected $table = 'GM_WEC_MEDIDORES_ELECTRICOS';
+    use HasFactory;
+
+    protected $table = 'gm_wec_medidores_electricos';
     protected $primaryKey = 'IDMEDIDOR2';
     public $timestamps = false;
     public $incrementing = false;
@@ -20,19 +23,13 @@ class MedidorElectrico extends Model
         'MEDAG_FECHAADQUISICION'
     ];
 
-    protected $casts = [
-        'MEDAG_FECHAADQUISICION' => 'date'
-    ];
-
-    protected $with = ['campus'];
+    public function consumosEnergia(): HasMany
+    {
+        return $this->hasMany(ConsumoEnergia::class, 'IDMEDIDOR2', 'IDMEDIDOR2');
+    }
 
     public function campus(): BelongsTo
     {
         return $this->belongsTo(Campus::class, 'CAMPUS_ID', 'CAMPUS_ID');
-    }
-
-    public function consumos(): HasMany
-    {
-        return $this->hasMany(ConsumoEnergia::class, 'IDMEDIDOR2', 'IDMEDIDOR2');
     }
 }

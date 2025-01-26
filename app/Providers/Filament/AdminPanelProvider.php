@@ -65,6 +65,8 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\GreenMetricRankingStats::class,
                 \App\Filament\Widgets\ConsumosChart::class,
                 \App\Filament\Widgets\EnergiaRenovableChart::class,
+                \App\Filament\Widgets\ConsumoPorCampusChart::class,
+                \App\Filament\Widgets\TendenciaMensualChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -81,8 +83,6 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->brandName('GreenMetrics')
-            ->brandLogo(asset('images/logo.png'))
-            ->favicon(asset('images/favicon.ico'))
             ->maxContentWidth('full')
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
@@ -97,30 +97,6 @@ class AdminPanelProvider extends PanelProvider
                     <link rel="preconnect" href="https://fonts.googleapis.com">
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        .fi-btn {
-                            transition: all 0.3s ease;
-                        }
-                        .fi-btn:hover {
-                            transform: translateY(-2px);
-                            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-                        }
-                        .fi-btn-success {
-                            animation: pulse 2s infinite;
-                        }
-                        @keyframes pulse {
-                            0% {
-                                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-                            }
-                            70% {
-                                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-                            }
-                            100% {
-                                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-                            }
-                        }
-                    </style>
-                '
-            );
+                ');
     }
 }

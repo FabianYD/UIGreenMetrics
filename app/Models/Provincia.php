@@ -3,21 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Provincia extends Model
 {
-    use HasFactory;
-
-    protected $table = 'GM_WEC_PROVINCIAS';
+    protected $table = 'gm_wec_provincias';
     protected $primaryKey = 'PROV_ID';
+    public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
     protected $fillable = [
         'PROV_ID',
         'PROV_NOMBRES',
         'PROV_CODIGOSPOSTAL'
     ];
+
+    public function ciudades(): HasMany
+    {
+        return $this->hasMany(Ciudad::class, 'PROV_ID', 'PROV_ID');
+    }
 }

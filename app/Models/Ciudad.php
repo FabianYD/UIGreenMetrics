@@ -3,19 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Provincia;
-use App\Models\Universidad;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ciudad extends Model
 {
-    use HasFactory;
-
-    protected $table = 'GM_WEC_CIUDADES';
+    protected $table = 'gm_wec_ciudades';
     protected $primaryKey = 'CIU_ID';
+    public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
 
     protected $fillable = [
         'CIU_ID',
@@ -24,13 +21,12 @@ class Ciudad extends Model
         'CIU_CODIGOSPOSTAL'
     ];
 
-    // Relaciones
-    public function provincia()
+    public function provincia(): BelongsTo
     {
         return $this->belongsTo(Provincia::class, 'PROV_ID', 'PROV_ID');
     }
 
-    public function universidades()
+    public function universidades(): HasMany
     {
         return $this->hasMany(Universidad::class, 'CIU_ID', 'CIU_ID');
     }
