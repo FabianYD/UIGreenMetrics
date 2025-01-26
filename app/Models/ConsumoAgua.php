@@ -31,4 +31,15 @@ class ConsumoAgua extends Model
     {
         return $this->belongsTo(MedidorAgua::class, 'MEDAG_ID', 'MEDAG_ID');
     }
+
+    public function costos()
+    {
+    return $this->hasOne(CostoAgua::class, 'CONSAG_ID', 'CONSAG_ID');
+    }
+
+    public function unidadMedida(): BelongsTo
+    {
+        return $this->belongsTo(UnidadMedidaAgua::class, 'MEDIDADAG_COD', 'MEDIDADAG_COD');
+    }
+
 }

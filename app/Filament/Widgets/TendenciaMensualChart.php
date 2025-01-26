@@ -15,6 +15,7 @@ class TendenciaMensualChart extends LineChartWidget
     protected static ?string $maxHeight = '400px';
     protected int | string | array $columnSpan = 'full';
 
+
     protected function getData(): array
     {
         $meses = collect();

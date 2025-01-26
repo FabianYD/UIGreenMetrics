@@ -62,8 +62,12 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
                 \App\Filament\Widgets\StatsGreenMetricOverview::class,
+                \App\Filament\Widgets\ComparacionConsumoAguaChar::class,
+                \App\Filament\Widgets\ComparacionConsumoEnergiaChar::class,
                 \App\Filament\Widgets\GreenMetricRankingStats::class,
                 \App\Filament\Widgets\ConsumosChart::class,
+                \App\Filament\Widgets\TiposdeTratamiento::class,
+                
                 \App\Filament\Widgets\EnergiaRenovableChart::class,
                 \App\Filament\Widgets\ConsumoPorCampusChart::class,
                 \App\Filament\Widgets\TendenciaMensualChart::class,

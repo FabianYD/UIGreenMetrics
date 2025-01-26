@@ -18,6 +18,7 @@ class GeneracionEnergiaResource extends Resource
     protected static ?string $navigationLabel = 'Generación de Energía';
     protected static ?string $pluralModelLabel = 'generaciones de energía';
     protected static ?string $modelLabel = 'generación de energía';
+    protected static ?int $sort = 2; // Cambia el valor para moverlo más arriba o abajo
 
     public static function form(Form $form): Form
     {

@@ -16,18 +16,16 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ConsumoEnergiaResource extends Resource
 {
     protected static ?string $model = ConsumoEnergia::class;
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
-    protected static ?string $navigationGroup = 'Energía';
+    protected static ?string $navigationGroup = 'Gestión de Energía';
     protected static ?string $navigationLabel = 'Consumo de Energía';
     protected static ?string $pluralModelLabel = 'Consumos de Energía';
     protected static ?string $modelLabel = 'Consumo de Energía';
-    protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {
@@ -38,7 +36,7 @@ class ConsumoEnergiaResource extends Resource
                     ->icon('heroicon-o-bolt')
                     ->schema([
                         Forms\Components\Select::make('IDMEDIDOR2')
-                            ->relationship('medidor', 'IDMEDIDOR2')
+                            ->relationship('medidorElectrico', 'IDMEDIDOR2') // Cambié 'medidor' a 'medidorElectrico'
                             ->required()
                             ->label('Medidor')
                             ->searchable()
@@ -61,7 +59,7 @@ class ConsumoEnergiaResource extends Resource
                             ->preload()
                             ->prefixIcon('heroicon-m-bolt'),
                         Forms\Components\Select::make('MEDENE_COD')
-                            ->relationship('unidadMedida', 'MEDENE_NOMBRE')
+                            ->relationship('unidadMedidaEnergia', 'MEDENE_NOMBRE') // Cambié 'unidadMedida' a 'unidadMedidaEnergia'
                             ->required()
                             ->label('Unidad de Medida')
                             ->searchable()
@@ -86,11 +84,11 @@ class ConsumoEnergiaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('medidor.IDMEDIDOR2')
+                Tables\Columns\TextColumn::make('medidorElectrico.IDMEDIDOR2') // Cambié 'medidor' a 'medidorElectrico'
                     ->label('Código del Medidor')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('medidor.campus.CAMPUS_NOMBRES')
+                Tables\Columns\TextColumn::make('medidorElectrico.campus.CAMPUS_NOMBRES') // Cambié 'medidor' a 'medidorElectrico'
                     ->label('Campus')
                     ->searchable()
                     ->sortable(),
@@ -150,17 +148,17 @@ class ConsumoEnergiaResource extends Resource
                                     ->icon('heroicon-o-map-pin')
                                     ->collapsible()
                                     ->schema([
-                                        TextEntry::make('medidor.IDMEDIDOR2')
+                                        TextEntry::make('medidorElectrico.IDMEDIDOR2') // Cambié 'medidor' a 'medidorElectrico'
                                             ->label('Código del Medidor')
                                             ->size(TextEntry\TextEntrySize::Large)
                                             ->weight('bold'),
-                                        TextEntry::make('medidor.campus.CAMPUS_NOMBRES')
+                                        TextEntry::make('medidorElectrico.campus.CAMPUS_NOMBRES') // Cambié 'medidor' a 'medidorElectrico'
                                             ->label('Campus')
                                             ->size(TextEntry\TextEntrySize::Large),
-                                        TextEntry::make('medidor.MEDAG_FECHAADQUISICION')
+                                        TextEntry::make('medidorElectrico.MEDAG_FECHAADQUISICION') // Cambié 'medidor' a 'medidorElectrico'
                                             ->label('Fecha de Adquisición')
                                             ->date('d/m/Y'),
-                                        TextEntry::make('medidor.campus.CAMPUS_CALLEPRINCIPAL')
+                                        TextEntry::make('medidorElectrico.campus.CAMPUS_CALLEPRINCIPAL') // Cambié 'medidor' a 'medidorElectrico'
                                             ->label('Dirección')
                                             ->size(TextEntry\TextEntrySize::Large),
                                     ])->columns(1),
@@ -278,7 +276,7 @@ class ConsumoEnergiaResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['medidor.campus', 'tipoEnergia', 'unidadMedida', 'costos']);
+            ->with(['medidorElectrico.campus', 'tipoEnergia', 'unidadMedidaEnergia', 'costos']);
     }
 
     public static function getNavigationBadge(): ?string

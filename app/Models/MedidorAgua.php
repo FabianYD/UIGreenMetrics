@@ -32,4 +32,5 @@ class MedidorAgua extends Model
     {
         return $this->belongsTo(Campus::class, 'CAMPUS_ID', 'CAMPUS_ID');
     }
+
 }

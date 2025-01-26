@@ -22,11 +22,11 @@ class ConsumoAguaResource extends Resource
 {
     protected static ?string $model = ConsumoAgua::class;
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
-    protected static ?string $navigationGroup = 'Agua';
+    #protected static ?string $navigationGroup = 'Agua';
+    protected static ?string $navigationGroup = 'Gestión de Agua';
     protected static ?string $navigationLabel = 'Consumo de Agua';
     protected static ?string $pluralModelLabel = 'Consumos de Agua';
     protected static ?string $modelLabel = 'Consumo de Agua';
-    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -38,7 +38,7 @@ class ConsumoAguaResource extends Resource
                     ->columns(2)
                     ->schema([
                         Forms\Components\Select::make('MEDAG_ID')
-                            ->relationship('medidor', 'MEDAG_ID')
+                            ->relationship('medidorAgua', 'MEDAG_ID')
                             ->required()
                             ->label('Medidor')
                             ->searchable()
@@ -108,11 +108,11 @@ class ConsumoAguaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('medidor.MEDAG_ID')
+                Tables\Columns\TextColumn::make('medidorAgua.MEDAG_ID')
                     ->label('Código del Medidor')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('medidor.campus.CAMPUS_NOMBRES')
+                Tables\Columns\TextColumn::make('medidorAgua.campus.CAMPUS_NOMBRES')
                     ->label('Campus')
                     ->searchable()
                     ->sortable(),
@@ -139,22 +139,16 @@ class ConsumoAguaResource extends Resource
                     ->sortable()
                     ->color('success'),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([ /*...*/ ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
             ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ])
+            ->emptyStateActions([Tables\Actions\CreateAction::make()])
             ->defaultSort('costos.COSTOAG_TOTAL', 'desc')
             ->poll('60s');
     }
@@ -166,17 +160,16 @@ class ConsumoAguaResource extends Resource
                 Section::make('Información del Medidor')
                     ->description('Detalles del medidor y ubicación')
                     ->schema([
-                        TextEntry::make('medidor.MEDAG_ID')
+                        TextEntry::make('medidorAgua.MEDAG_ID')
                             ->label('Código del Medidor'),
-                        TextEntry::make('medidor.MEDAG_FECHAADQUISICION')
+                        TextEntry::make('medidorAgua.MEDAG_FECHAADQUISICION')
                             ->label('Fecha de Adquisición')
                             ->date('d/m/Y'),
-                        TextEntry::make('medidor.campus.CAMPUS_NOMBRES')
+                        TextEntry::make('medidorAgua.campus.CAMPUS_NOMBRES')
                             ->label('Campus'),
-                        TextEntry::make('medidor.campus.CAMPUS_CALLEPRINCIPAL')
+                        TextEntry::make('medidorAgua.campus.CAMPUS_CALLEPRINCIPAL')
                             ->label('Calle Principal'),
                     ])->columns(2),
-
                 Section::make('Información del Consumo')
                     ->description('Detalles del consumo de agua registrado')
                     ->schema([
@@ -194,7 +187,6 @@ class ConsumoAguaResource extends Resource
                             ->label('Fecha de Pago')
                             ->date('d/m/Y'),
                     ])->columns(2),
-
                 Section::make('Información de Costos')
                     ->description('Detalles del costo del agua')
                     ->schema([
@@ -238,9 +230,7 @@ class ConsumoAguaResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [/*...*/];
     }
 
     public static function getPages(): array
@@ -255,7 +245,7 @@ class ConsumoAguaResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['medidor.campus', 'unidadMedida', 'costos']);
+            ->with(['medidorAgua.campus', 'unidadMedida', 'costos']);
     }
 
     public static function getNavigationBadge(): ?string

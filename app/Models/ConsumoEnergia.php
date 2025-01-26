@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne; // O HasMany si es necesario
 
 class ConsumoEnergia extends Model
 {
@@ -32,4 +33,20 @@ class ConsumoEnergia extends Model
     {
         return $this->belongsTo(MedidorElectrico::class, 'IDMEDIDOR2', 'IDMEDIDOR2');
     }
+
+    public function unidadMedidaEnergia(): BelongsTo  // Añadido 'BelongsTo' para tipo de relación explícito
+    {
+        return $this->belongsTo(UnidadMedidaEnergia::class, 'MEDENE_COD', 'MEDENE_COD');
+    }
+
+    public function tipoEnergia(): BelongsTo
+    {
+        return $this->belongsTo(TipoEnergia::class, 'TIPOENE_ID', 'TIPOENE_ID');
+    }
+    
+    public function costos(): HasOne // O HasMany si corresponde
+    {
+        return $this->hasOne(CostoEnergia::class, 'CONSENE_ID', 'CONSENE_ID'); // Relación con 'COSTENE_ID' en CostoEnergia
+    }
+
 }

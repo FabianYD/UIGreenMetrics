@@ -11,11 +11,11 @@ class ConsumosChart extends ChartWidget
 {
     protected static ?string $heading = 'Consumos Mensuales';
     protected static ?string $pollingInterval = '15s';
-    protected static ?string $maxHeight = '300px';
+    protected static ?string $maxHeight = '900px';
 
     protected function getData(): array
     {
-        // Consulta para agua usando subconsulta
+        // Consulta para agua
         $consumosAgua = DB::table(function ($query) {
             $query->from('GM_WEC_CONSUMO_AGUA')
                 ->select(
@@ -27,7 +27,7 @@ class ConsumosChart extends ChartWidget
             ->orderBy('mes')
             ->get();
 
-        // Consulta para energía usando subconsulta
+        // Consulta para energía
         $consumosEnergia = DB::table(function ($query) {
             $query->from('GM_WEC_CONSUMO_ENERGIAS')
                 ->select(
@@ -39,36 +39,21 @@ class ConsumosChart extends ChartWidget
             ->orderBy('mes')
             ->get();
 
-        // Combinar y ordenar todas las fechas únicas
-        $labels = collect();
-        $labels = $labels->concat($consumosAgua->pluck('mes'))
-            ->concat($consumosEnergia->pluck('mes'))
-            ->unique()
-            ->sort()
-            ->values();
+        // Combinar y generar todos los meses dentro del rango
+        $allMonths = collect(range(0, 11))->map(function ($i) {
+            return now()->startOfYear()->addMonths($i)->format('Y-m');
+        });
 
-        // Inicializar arrays con ceros
-        $aguaData = array_fill(0, count($labels), 0);
-        $energiaData = array_fill(0, count($labels), 0);
+        // Preparar datos de agua y energía
+        $aguaData = $allMonths->map(function ($month) use ($consumosAgua) {
+            return $consumosAgua->firstWhere('mes', $month)->total_agua ?? 0;
+        });
+        $energiaData = $allMonths->map(function ($month) use ($consumosEnergia) {
+            return $consumosEnergia->firstWhere('mes', $month)->total_energia ?? 0;
+        });
 
-        // Llenar datos de agua
-        foreach ($consumosAgua as $consumo) {
-            $index = $labels->search($consumo->mes);
-            if ($index !== false) {
-                $aguaData[$index] = floatval($consumo->total_agua);
-            }
-        }
-
-        // Llenar datos de energía
-        foreach ($consumosEnergia as $consumo) {
-            $index = $labels->search($consumo->mes);
-            if ($index !== false) {
-                $energiaData[$index] = floatval($consumo->total_energia);
-            }
-        }
-
-        // Formatear las etiquetas para mostrar mes y año en español
-        $labelsFormateadas = $labels->map(function ($fecha) {
+        // Formatear etiquetas del eje X (meses)
+        $labelsFormateadas = $allMonths->map(function ($fecha) {
             $meses = [
                 '01' => 'Ene', '02' => 'Feb', '03' => 'Mar', '04' => 'Abr',
                 '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Ago',
@@ -82,16 +67,18 @@ class ConsumosChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Consumo de Agua (m³)',
-                    'data' => $aguaData,
-                    'borderColor' => '#3b82f6',
-                    'backgroundColor' => '#3b82f680',
+                    'data' => $aguaData->toArray(),
+                    'borderColor' => '#1e40af', // Azul oscuro
+                    'backgroundColor' => '#1e40af80', // Azul semitransparente
+                    'pointBackgroundColor' => '#1e40af',
                     'tension' => 0.3,
                 ],
                 [
                     'label' => 'Consumo de Energía (kW/h)',
-                    'data' => $energiaData,
-                    'borderColor' => '#f59e0b',
-                    'backgroundColor' => '#f59e0b80',
+                    'data' => $energiaData->toArray(),
+                    'borderColor' => '#ffd700', // Amarillo metálico
+                    'backgroundColor' => '#ffd70080', // Amarillo semitransparente
+                    'pointBackgroundColor' => '#ffd700',
                     'tension' => 0.3,
                 ],
             ],
@@ -108,7 +95,19 @@ class ConsumosChart extends ChartWidget
     {
         return [
             'scales' => [
+                'x' => [
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Meses',
+                        'font' => ['size' => 14],
+                    ],
+                ],
                 'y' => [
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Consumo',
+                        'font' => ['size' => 14],
+                    ],
                     'beginAtZero' => true,
                     'ticks' => [
                         'callback' => 'function(value) { return value.toLocaleString("es-ES") }',
@@ -138,3 +137,4 @@ class ConsumosChart extends ChartWidget
         ];
     }
 }
+
