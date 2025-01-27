@@ -11,6 +11,8 @@ class EnergiaRenovableChart extends ChartWidget
     protected static ?string $heading = 'Distribución de Energía';
     protected static ?string $pollingInterval = '15s';
     protected static ?string $maxHeight = '300px';
+    
+    protected static ?int $sort = 3;
 
     protected function getData(): array
     {

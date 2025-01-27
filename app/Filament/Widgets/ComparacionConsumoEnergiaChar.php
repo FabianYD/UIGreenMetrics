@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 class ComparacionConsumoEnergiaChar extends ChartWidget
 {
     protected static ?string $heading = 'Comparación de Consumo de Electricidad';
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 6;
 
     protected function getData(): array
     {

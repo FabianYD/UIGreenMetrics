@@ -12,6 +12,7 @@ class ConsumoPorCampusChart extends BarChartWidget
     protected static ?string $pollingInterval = '10s';
     protected static ?string $maxHeight = '400px';
     protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 4;
 
     protected function getData(): array
     {

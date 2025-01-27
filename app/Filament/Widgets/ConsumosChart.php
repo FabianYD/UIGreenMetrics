@@ -8,8 +8,14 @@ use Filament\Widgets\ChartWidget;
 class ConsumosChart extends ChartWidget
 {
     protected static ?string $heading = 'Consumos Mensuales';
-    protected static ?string $pollingInterval = '15s';
-    protected static ?string $maxHeight = '900px';
+    #protected static ?string $pollingInterval = '15s';
+    #protected static ?string $maxHeight = '900px';
+
+    protected static ?string $pollingInterval = '10s';
+    protected static ?string $maxHeight = '400px';
+    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 3;
+
 
     protected function getData(): array
     {
@@ -96,55 +102,5 @@ class ConsumosChart extends ChartWidget
         return 'line';
     }
 
-    protected function getOptions(): array
-    {
-        return [
-            'scales' => [
-                'x' => [
-                    'title' => [
-                        'display' => true,
-                        'text' => 'Meses',
-                        'font' => ['size' => 14],
-                    ],
-                ],
-                'y' => [
-                    'title' => [
-                        'display' => true,
-                        'text' => 'Consumo',
-                        'font' => ['size' => 14],
-                    ],
-                    'beginAtZero' => true,
-                ],
-            ],
-            'elements' => [
-                'point' => [
-                    'radius' => 4,
-                    'hoverRadius' => 6,
-                ],
-            ],
-            'plugins' => [
-                'legend' => [
-                    'position' => 'bottom',
-                ],
-                'tooltip' => [
-                    'callbacks' => [
-                        'label' => 'function(context) {
-                            const datasetLabel = context.dataset.label || "";
-                            const value = context.raw;
-                            const dataIndex = context.dataIndex;
-                            const agua = context.chart.data.datasets[0].data[dataIndex];
-                            const energia = context.chart.data.datasets[1].data[dataIndex];
-                            const total = agua + energia;
-                            const aguaPercent = ((agua / total) * 100).toFixed(2);
-                            const energiaPercent = ((energia / total) * 100).toFixed(2);
-                            
-                            return `${datasetLabel}: ${value.toLocaleString("es-ES")} (Total: ${total.toLocaleString("es-ES")}) 
-                                    \nAgua: ${agua.toLocaleString("es-ES")} (${aguaPercent}%) 
-                                    \nEnergía: ${energia.toLocaleString("es-ES")} (${energiaPercent}%)`;
-                        }',
-                    ],
-                ],
-            ],
-        ];
-    }
+    
 }

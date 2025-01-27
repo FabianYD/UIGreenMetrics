@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 class ComparacionConsumoAguaChar extends ChartWidget
 {
     protected static ?string $heading = 'Comparación de Consumo de Agua';
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 5;
 
     protected function getData(): array
     {

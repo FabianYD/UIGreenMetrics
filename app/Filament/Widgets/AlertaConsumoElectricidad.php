@@ -5,29 +5,31 @@ namespace App\Filament\Widgets;
 use Illuminate\Support\Facades\DB;
 use Filament\Widgets\ChartWidget;
 
-class AlertaConsumoAgua extends ChartWidget
+class AlertaConsumoElectricidad extends ChartWidget
 {
-    protected static ?string $heading = 'Control Humbral Consumo Agua';
+    protected static ?string $heading = 'Control Humbral Consumo Electricidad';
     protected static ?string $pollingInterval = '15s';
     protected static ?string $maxHeight = '900px';
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 8;
 
     protected function getData(): array
     {
-        $consumosAgua = DB::table('GM_WEC_CONSUMO_AGUA')
+        // Consulta de datos de consumo de electricidad
+        $consumosElectricidad = DB::table('GM_WEC_CONSUMO_ENERGIAS')
             ->select(
                 DB::raw('DATE_FORMAT(CONSENE_FECHAPAGO, "%Y-%m") as mes'),
-                DB::raw('SUM(CONSAG_TOTAL) as total_agua')
+                DB::raw('SUM(CONSENE_TOTAL) as total_energia')
             )
             ->groupBy(DB::raw('DATE_FORMAT(CONSENE_FECHAPAGO, "%Y-%m")'))
             ->orderBy('mes')
             ->get();
 
+        // Generar meses desde el inicio del año
         $allMonths = collect(range(0, 11))->map(function ($i) {
             return now()->startOfYear()->addMonths($i)->format('Y-m');
         });
 
-        $umbral = 6000;
+        $umbral = 8000; // Umbral ajustado para electricidad
         $dataBlue = [];
         $dataRed = [];
         $labelsFormateadas = $allMonths->map(function ($fecha) {
@@ -41,13 +43,13 @@ class AlertaConsumoAgua extends ChartWidget
         });
 
         foreach ($allMonths as $month) {
-            $agua = $consumosAgua->firstWhere('mes', $month)->total_agua ?? 0;
+            $energia = $consumosElectricidad->firstWhere('mes', $month)->total_energia ?? 0;
 
-            if ($agua > $umbral) {
-                $dataRed[] = $agua - $umbral;
+            if ($energia > $umbral) {
+                $dataRed[] = $energia - $umbral;
                 $dataBlue[] = $umbral;
             } else {
-                $dataBlue[] = $agua;
+                $dataBlue[] = $energia;
                 $dataRed[] = 0;
             }
         }
@@ -77,6 +79,4 @@ class AlertaConsumoAgua extends ChartWidget
     {
         return 'bar';
     }
-
-    
 }

@@ -66,20 +66,20 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\ComparacionConsumoEnergiaChar::class,
                 \App\Filament\Widgets\GreenMetricRankingStats::class,
                 \App\Filament\Widgets\ConsumosChart::class,
-                \App\Filament\Widgets\TiposdeTratamiento::class,
+               # \App\Filament\Widgets\TiposdeTratamiento::class,
                 
-                \App\Filament\Widgets\EnergiaRenovableChart::class,
+                #\App\Filament\Widgets\EnergiaRenovableChart::class,
                 \App\Filament\Widgets\ConsumoPorCampusChart::class,
-                \App\Filament\Widgets\TendenciaMensualChart::class,
-               #\App\Filament\Widgets\ConsumosAguaAlertaChart::class,
+                #\App\Filament\Widgets\TendenciaMensualChart::class,
                \App\Filament\Widgets\AlertaConsumoAgua::class,
+               #\App\Filament\Widgets\AlertaConsumoElectricidad::class,
 
             ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
+                AuthenticateSession::class, 
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
