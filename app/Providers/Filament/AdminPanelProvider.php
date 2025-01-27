@@ -71,6 +71,9 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\EnergiaRenovableChart::class,
                 \App\Filament\Widgets\ConsumoPorCampusChart::class,
                 \App\Filament\Widgets\TendenciaMensualChart::class,
+               #\App\Filament\Widgets\ConsumosAguaAlertaChart::class,
+               \App\Filament\Widgets\AlertaConsumoAgua::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -93,7 +96,7 @@ class AdminPanelProvider extends PanelProvider
                 'Gestión de Personal',
                 'Gestión de Agua',
                 'Gestión de Energía',
-            ])
+            ])  
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->renderHook(
                 'panels::styles.before',

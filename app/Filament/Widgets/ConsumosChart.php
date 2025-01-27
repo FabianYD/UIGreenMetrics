@@ -2,10 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\ConsumoAgua;
-use App\Models\ConsumoEnergia;
-use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
+use Filament\Widgets\ChartWidget;
 
 class ConsumosChart extends ChartWidget
 {
@@ -44,12 +42,19 @@ class ConsumosChart extends ChartWidget
             return now()->startOfYear()->addMonths($i)->format('Y-m');
         });
 
-        // Preparar datos de agua y energía
-        $aguaData = $allMonths->map(function ($month) use ($consumosAgua) {
-            return $consumosAgua->firstWhere('mes', $month)->total_agua ?? 0;
-        });
-        $energiaData = $allMonths->map(function ($month) use ($consumosEnergia) {
-            return $consumosEnergia->firstWhere('mes', $month)->total_energia ?? 0;
+        // Preparar datos de agua, energía y totales
+        $data = $allMonths->mapWithKeys(function ($month) use ($consumosAgua, $consumosEnergia) {
+            $agua = $consumosAgua->firstWhere('mes', $month)->total_agua ?? 0;
+            $energia = $consumosEnergia->firstWhere('mes', $month)->total_energia ?? 0;
+            $total = $agua + $energia;
+
+            return [$month => [
+                'agua' => $agua,
+                'energia' => $energia,
+                'total' => $total,
+                'agua_percent' => $total > 0 ? round(($agua / $total) * 100, 2) : 0,
+                'energia_percent' => $total > 0 ? round(($energia / $total) * 100, 2) : 0,
+            ]];
         });
 
         // Formatear etiquetas del eje X (meses)
@@ -67,17 +72,17 @@ class ConsumosChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Consumo de Agua (m³)',
-                    'data' => $aguaData->toArray(),
-                    'borderColor' => '#1e40af', // Azul oscuro
-                    'backgroundColor' => '#1e40af80', // Azul semitransparente
+                    'data' => $data->pluck('agua')->toArray(),
+                    'borderColor' => '#1e40af',
+                    'backgroundColor' => '#1e40af80',
                     'pointBackgroundColor' => '#1e40af',
                     'tension' => 0.3,
                 ],
                 [
                     'label' => 'Consumo de Energía (kW/h)',
-                    'data' => $energiaData->toArray(),
-                    'borderColor' => '#ffd700', // Amarillo metálico
-                    'backgroundColor' => '#ffd70080', // Amarillo semitransparente
+                    'data' => $data->pluck('energia')->toArray(),
+                    'borderColor' => '#ffd700',
+                    'backgroundColor' => '#ffd70080',
                     'pointBackgroundColor' => '#ffd700',
                     'tension' => 0.3,
                 ],
@@ -109,9 +114,6 @@ class ConsumosChart extends ChartWidget
                         'font' => ['size' => 14],
                     ],
                     'beginAtZero' => true,
-                    'ticks' => [
-                        'callback' => 'function(value) { return value.toLocaleString("es-ES") }',
-                    ],
                 ],
             ],
             'elements' => [
@@ -127,9 +129,18 @@ class ConsumosChart extends ChartWidget
                 'tooltip' => [
                     'callbacks' => [
                         'label' => 'function(context) {
-                            let label = context.dataset.label || "";
-                            let value = context.parsed.y;
-                            return label + ": " + value.toLocaleString("es-ES");
+                            const datasetLabel = context.dataset.label || "";
+                            const value = context.raw;
+                            const dataIndex = context.dataIndex;
+                            const agua = context.chart.data.datasets[0].data[dataIndex];
+                            const energia = context.chart.data.datasets[1].data[dataIndex];
+                            const total = agua + energia;
+                            const aguaPercent = ((agua / total) * 100).toFixed(2);
+                            const energiaPercent = ((energia / total) * 100).toFixed(2);
+                            
+                            return `${datasetLabel}: ${value.toLocaleString("es-ES")} (Total: ${total.toLocaleString("es-ES")}) 
+                                    \nAgua: ${agua.toLocaleString("es-ES")} (${aguaPercent}%) 
+                                    \nEnergía: ${energia.toLocaleString("es-ES")} (${energiaPercent}%)`;
                         }',
                     ],
                 ],
@@ -137,4 +148,3 @@ class ConsumosChart extends ChartWidget
         ];
     }
 }
-
