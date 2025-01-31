@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 
 class EmpleadoResource extends Resource
 {
@@ -30,7 +31,8 @@ class EmpleadoResource extends Resource
                             ->label('DNI')
                             ->required()
                             ->maxLength(10)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->helperText('Este número será la contraseña inicial del usuario'),
                         Forms\Components\Select::make('ROL_COD')
                             ->label('Rol')
                             ->relationship('rol', 'ROL_DETALLE')
@@ -57,6 +59,7 @@ class EmpleadoResource extends Resource
                             ->maxLength(100),
                     ])
                     ->columns(2)
+                    ->description('Al crear el empleado, se creará automáticamente un usuario con el número de DNI como contraseña inicial.')
             ]);
     }
 
@@ -98,6 +101,38 @@ class EmpleadoResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('cambiarPassword')
+                    ->label('Cambiar Contraseña')
+                    ->form([
+                        Forms\Components\TextInput::make('password')
+                            ->label('Nueva Contraseña')
+                            ->password()
+                            ->required()
+                            ->minLength(6),
+                        Forms\Components\TextInput::make('password_confirmation')
+                            ->label('Confirmar Contraseña')
+                            ->password()
+                            ->required()
+                            ->same('password'),
+                        Forms\Components\Toggle::make('reset_default')
+                            ->label('Restablecer a contraseña por defecto (número de DNI)')
+                            ->default(false),
+                    ])
+                    ->action(function (Empleado $record, array $data): void {
+                        if ($data['reset_default']) {
+                            $record->sincronizarUsuario($record->EMP_DNI);
+                            $mensaje = 'La contraseña ha sido restablecida al número de DNI.';
+                        } else {
+                            $record->sincronizarUsuario($data['password']);
+                            $mensaje = 'La contraseña ha sido actualizada exitosamente.';
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title('Contraseña actualizada')
+                            ->body($mensaje)
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
