@@ -35,6 +35,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('EcoMetric')
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Emerald,
                 'danger' => Color::Rose,
@@ -57,6 +60,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
+                \App\Filament\Pages\EditProfile::class,
             ])
             ->widgets([
                 AccountWidget::class,
@@ -89,13 +93,14 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->brandName('GreenMetrics')
             ->maxContentWidth('full')
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 'Gestión de Personal',
                 'Gestión de Agua',
                 'Gestión de Energía',
+                'Administración',
+                'Cuenta',
             ])  
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->renderHook(
