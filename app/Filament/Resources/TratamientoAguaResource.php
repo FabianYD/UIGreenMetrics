@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TratamientoAguaResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\TratamientoAgua;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,12 +13,20 @@ use Filament\Tables\Table;
 
 class TratamientoAguaResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = TratamientoAgua::class;
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
     protected static ?string $navigationGroup = 'Gestión de Agua';
-    protected static ?string $navigationLabel = 'Tratamientos de Agua';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationLabel = 'Tratamiento de Agua';
     protected static ?string $pluralModelLabel = 'tratamientos de agua';
     protected static ?string $modelLabel = 'tratamiento de agua';
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['TAG', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {

@@ -56,7 +56,7 @@ class Empleado extends Model
         if ($user) {
             $user->update($userData);
         } else {
-            $userData['password'] = Hash::make($password ?? $this->EMP_DNI); // Usar DNI como contraseña por defecto
+            $userData['password'] = Hash::make($password ?? $this->EMP_DNI);
             User::create($userData);
         }
     }

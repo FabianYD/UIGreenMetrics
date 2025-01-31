@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmpleadoResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\Empleado;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,13 +14,20 @@ use Filament\Notifications\Notification;
 
 class EmpleadoResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = Empleado::class;
     protected static ?string $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationGroup = 'Gestión de Personal';
+    protected static ?string $navigationGroup = 'Administración';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Empleados';
     protected static ?string $pluralModelLabel = 'empleados';
     protected static ?string $modelLabel = 'empleado';
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['ADM']; // Solo administradores pueden gestionar empleados
+    }
 
     public static function form(Form $form): Form
     {

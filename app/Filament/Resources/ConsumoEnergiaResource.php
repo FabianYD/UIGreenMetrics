@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ConsumoEnergiaResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\ConsumoEnergia;
 use App\Models\MedidorElectrico;
 use App\Models\TipoEnergia;
@@ -19,13 +20,20 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ConsumoEnergiaResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = ConsumoEnergia::class;
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationGroup = 'Gestión de Energía';
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Consumo de Energía';
-    protected static ?string $pluralModelLabel = 'Consumos de Energía';
-    protected static ?string $modelLabel = 'Consumo de Energía';
+    protected static ?string $pluralModelLabel = 'consumos de energía';
+    protected static ?string $modelLabel = 'consumo de energía';
 
+    protected static function getAllowedRoles(): array
+    {
+        return ['TEN', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {

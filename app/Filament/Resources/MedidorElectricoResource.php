@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MedidorElectricoResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\MedidorElectrico;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,12 +13,20 @@ use Filament\Tables\Table;
 
 class MedidorElectricoResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = MedidorElectrico::class;
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationGroup = 'Gestión de Energía';
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Medidores Eléctricos';
     protected static ?string $pluralModelLabel = 'medidores eléctricos';
     protected static ?string $modelLabel = 'medidor eléctrico';
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['TEN', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {

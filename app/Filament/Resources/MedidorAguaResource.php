@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MedidorAguaResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\MedidorAgua;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,12 +13,20 @@ use Filament\Tables\Table;
 
 class MedidorAguaResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = MedidorAgua::class;
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-beaker';
     protected static ?string $navigationGroup = 'Gestión de Agua';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Medidores de Agua';
     protected static ?string $pluralModelLabel = 'medidores de agua';
     protected static ?string $modelLabel = 'medidor de agua';
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['TAG', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {

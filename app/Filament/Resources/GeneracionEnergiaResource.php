@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GeneracionEnergiaResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\GeneracionEnergia;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,13 +13,20 @@ use Filament\Tables\Table;
 
 class GeneracionEnergiaResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = GeneracionEnergia::class;
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationGroup = 'Gestión de Energía';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Generación de Energía';
     protected static ?string $pluralModelLabel = 'generaciones de energía';
     protected static ?string $modelLabel = 'generación de energía';
-    protected static ?int $sort = 2; // Cambia el valor para moverlo más arriba o abajo
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['TEN', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {

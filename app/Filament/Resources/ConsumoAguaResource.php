@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ConsumoAguaResource\Pages;
+use App\Filament\Resources\Traits\HasRoleRestrictions;
 use App\Models\ConsumoAgua;
 use App\Models\MedidorAgua;
 use App\Models\UnidadMedidaAgua;
@@ -20,13 +21,19 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ConsumoAguaResource extends Resource
 {
+    use HasRoleRestrictions;
+
     protected static ?string $model = ConsumoAgua::class;
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
-    #protected static ?string $navigationGroup = 'Agua';
     protected static ?string $navigationGroup = 'Gestión de Agua';
     protected static ?string $navigationLabel = 'Consumo de Agua';
     protected static ?string $pluralModelLabel = 'Consumos de Agua';
     protected static ?string $modelLabel = 'Consumo de Agua';
+
+    protected static function getAllowedRoles(): array
+    {
+        return ['TAG', 'ADM'];
+    }
 
     public static function form(Form $form): Form
     {
