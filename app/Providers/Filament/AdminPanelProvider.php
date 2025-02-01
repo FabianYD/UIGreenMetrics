@@ -25,6 +25,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\EditProfile;
+use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -96,12 +98,13 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth('full')
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
+                'Cuenta',
+                'Administración',                
                 'Gestión de Personal',
                 'Gestión de Agua',
                 'Gestión de Energía',
-                'Administración',
-                'Cuenta',
-            ])  
+                'Sistemas Externos',
+            ])
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->renderHook(
                 'panels::styles.before',
@@ -109,6 +112,12 @@ class AdminPanelProvider extends PanelProvider
                     <link rel="preconnect" href="https://fonts.googleapis.com">
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-                ');
+                ')
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Mi Perfil')
+                    ->url(fn (): string => EditProfile::getUrl())
+                    ->icon('heroicon-o-cog-8-tooth')
+            ]);
     }
 }

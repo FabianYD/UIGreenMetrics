@@ -16,7 +16,7 @@ class TratamientoAguaResource extends Resource
     use HasRoleRestrictions;
 
     protected static ?string $model = TratamientoAgua::class;
-    protected static ?string $navigationIcon = 'heroicon-o-beaker';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
     protected static ?string $navigationGroup = 'Gestión de Agua';
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Tratamiento de Agua';

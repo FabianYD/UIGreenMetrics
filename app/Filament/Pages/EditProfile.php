@@ -15,18 +15,13 @@ class EditProfile extends Page implements Forms\Contracts\HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationGroup = 'Cuenta';
-    protected static ?string $navigationLabel = 'Mi Perfil';
-    protected static ?int $navigationSort = 1;
+    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $title = 'Mi Perfil';
     protected static string $view = 'filament.pages.edit-profile';
 
     public function mount(): void
     {
-        // Obtener el usuario autenticado
         $user = auth()->user();
-
-        // Obtener el empleado asociado
         $empleado = Empleado::where('EMP_EMAIL', $user->email)->first();
 
         if (!$empleado) {
@@ -40,7 +35,6 @@ class EditProfile extends Page implements Forms\Contracts\HasForms
             return;
         }
 
-        // Llenar el formulario con los datos del empleado
         $this->form->fill($empleado->toArray());
     }
 
@@ -93,10 +87,7 @@ class EditProfile extends Page implements Forms\Contracts\HasForms
     {
         $data = $this->form->getState();
 
-        // Obtener el usuario autenticado
         $user = auth()->user();
-        
-        // Obtener el empleado asociado
         $empleado = Empleado::where('EMP_EMAIL', $user->email)->first();
 
         if (!$empleado) {
@@ -108,7 +99,6 @@ class EditProfile extends Page implements Forms\Contracts\HasForms
             return;
         }
 
-        // Actualizar empleado
         $empleado->update([
             'EMP_NOMBRES' => $data['EMP_NOMBRES'],
             'EMP_APELLIDOS' => $data['EMP_APELLIDOS'],
@@ -116,13 +106,11 @@ class EditProfile extends Page implements Forms\Contracts\HasForms
             'EMP_EMAIL' => $data['EMP_EMAIL'],
         ]);
 
-        // Actualizar usuario
         $user->update([
             'name' => $data['EMP_NOMBRES'] . ' ' . $data['EMP_APELLIDOS'],
             'email' => $data['EMP_EMAIL'],
         ]);
 
-        // Actualizar contraseña si se proporcionó una nueva
         if (!empty($data['new_password'])) {
             $user->update([
                 'password' => Hash::make($data['new_password']),

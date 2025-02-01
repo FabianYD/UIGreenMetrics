@@ -24,11 +24,13 @@ class ConsumoAguaResource extends Resource
     use HasRoleRestrictions;
 
     protected static ?string $model = ConsumoAgua::class;
-    protected static ?string $navigationIcon = 'heroicon-o-beaker';
+    protected static ?string $navigationIcon = 'heroicon-o-cloud';
     protected static ?string $navigationGroup = 'Gestión de Agua';
     protected static ?string $navigationLabel = 'Consumo de Agua';
     protected static ?string $pluralModelLabel = 'Consumos de Agua';
     protected static ?string $modelLabel = 'Consumo de Agua';
+    protected static ?int $navigationSort = 2;
+
 
     protected static function getAllowedRoles(): array
     {

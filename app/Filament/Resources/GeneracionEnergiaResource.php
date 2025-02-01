@@ -16,9 +16,9 @@ class GeneracionEnergiaResource extends Resource
     use HasRoleRestrictions;
 
     protected static ?string $model = GeneracionEnergia::class;
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static ?string $navigationIcon = 'heroicon-o-sun';
     protected static ?string $navigationGroup = 'Gestión de Energía';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Generación de Energía';
     protected static ?string $pluralModelLabel = 'generaciones de energía';
     protected static ?string $modelLabel = 'generación de energía';

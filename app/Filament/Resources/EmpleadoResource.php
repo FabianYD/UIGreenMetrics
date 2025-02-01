@@ -17,7 +17,7 @@ class EmpleadoResource extends Resource
     use HasRoleRestrictions;
 
     protected static ?string $model = Empleado::class;
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Administración';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Empleados';

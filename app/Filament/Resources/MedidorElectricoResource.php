@@ -16,9 +16,9 @@ class MedidorElectricoResource extends Resource
     use HasRoleRestrictions;
 
     protected static ?string $model = MedidorElectrico::class;
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static ?string $navigationIcon = 'heroicon-o-wallet';
     protected static ?string $navigationGroup = 'Gestión de Energía';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Medidores Eléctricos';
     protected static ?string $pluralModelLabel = 'medidores eléctricos';
     protected static ?string $modelLabel = 'medidor eléctrico';

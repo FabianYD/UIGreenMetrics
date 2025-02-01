@@ -25,7 +25,7 @@ class ConsumoEnergiaResource extends Resource
     protected static ?string $model = ConsumoEnergia::class;
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationGroup = 'Gestión de Energía';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Consumo de Energía';
     protected static ?string $pluralModelLabel = 'consumos de energía';
     protected static ?string $modelLabel = 'consumo de energía';
