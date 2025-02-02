@@ -24,7 +24,8 @@ class MonitoreoPrograma extends Model
     protected $casts = [
         'MONIT_FECHA' => 'date',
         'MONIT_METRICAS' => 'json',
-        'MONIT_USO_TIC' => 'boolean'
+        'MONIT_USO_TIC' => 'boolean',
+        'MONIT_TIPO' => 'string'
     ];
 
     public function campus(): BelongsTo

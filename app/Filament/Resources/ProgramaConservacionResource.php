@@ -16,7 +16,7 @@ class ProgramaConservacionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-heart';
     protected static ?string $navigationGroup = 'Gestión de Agua';
     protected static ?string $navigationLabel = 'Programas de Conservación';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
