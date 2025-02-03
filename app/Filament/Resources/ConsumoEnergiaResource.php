@@ -17,6 +17,7 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ConsumoEnergiaResource extends Resource
 {
@@ -92,44 +93,89 @@ class ConsumoEnergiaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('medidorElectrico.IDMEDIDOR2') // Cambié 'medidor' a 'medidorElectrico'
-                    ->label('Código del Medidor')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('medidorElectrico.campus.CAMPUS_NOMBRES') // Cambié 'medidor' a 'medidorElectrico'
+                Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('tipoEnergia.TIPOENE_NOMBRES')
-                    ->label('Tipo de Energía')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('CONSENE_TOTAL')
-                    ->label('Total Consumido')
-                    ->suffix(' kW/h')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('costos.COSTENE_TOTAL')
-                    ->label('Valor Total')
-                    ->prefix('$ ')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
                     ->sortable()
-                    ->color('success'),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('medidorElectrico.MEDELE_NOMBRE')
+                    ->label('Medidor')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('CONSENE_FECHA')
+                    ->label('Fecha')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('CONSENE_CONSUMO')
+                    ->label('Consumo')
+                    ->numeric(2)
+                    ->suffix(' kWh')
+                    ->sortable()
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $generaciones = $record->generacionesEnergia;
+                        $totalGenerado = $generaciones->sum('GENENE_TOTAL');
+                        $porcentajeGenerado = $record->CONSENE_TOTAL > 0 ? round(($totalGenerado / $record->CONSENE_TOTAL) * 100, 2) : 0;
+                        
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Consumo de Energía</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->medidorElectrico->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Medidor</div>
+                                        <div>{$record->medidorElectrico->MEDELE_NOMBRE}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Consumo Total</div>
+                                        <div>{$record->CONSENE_TOTAL} kWh</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Fecha</div>
+                                        <div>{$record->CONSENE_FECHA->format('d/m/Y')}</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold mb-2'>Generación de Energía</div>
+                                    <div class='mb-2'>Total generado: {$totalGenerado} kWh ({$porcentajeGenerado}% del consumo)</div>";
+                        
+                        if ($generaciones->count() > 0) {
+                            $html .= "<div class='space-y-2'>";
+                            foreach ($generaciones as $generacion) {
+                                $html .= "
+                                    <div class='bg-gray-50 p-2 rounded'>
+                                        <div>Tipo: {$generacion->GENENE_TIPO}</div>
+                                        <div>Cantidad: {$generacion->GENENE_TOTAL} kWh</div>
+                                        <div>Fecha: {$generacion->GENENE_FECHA->format('d/m/Y')}</div>
+                                        <div>Estado: {$generacion->GENENE_ESTADO}</div>
+                                    </div>";
+                            }
+                            $html .= "</div>";
+                        } else {
+                            $html .= "<div class='text-gray-500'>No hay generación de energía registrada</div>";
+                        }
+                        
+                        $html .= "
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -139,7 +185,7 @@ class ConsumoEnergiaResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ])
-            ->defaultSort('CONSENE_FECHAPAGO', 'desc')
+            ->defaultSort('CONSENE_FECHA', 'desc')
             ->poll('60s');
     }
 

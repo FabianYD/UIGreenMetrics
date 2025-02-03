@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class ProgramaConservacionResource extends Resource
 {
@@ -54,25 +55,103 @@ class ProgramaConservacionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('PROGCONS_NOMBRE')
-                    ->label('Nombre')
+                    ->label('Programa')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('PROGCONS_ESTADO')
-                    ->label('Estado'),
-                Tables\Columns\TextColumn::make('PROGCONS_AVANCE')
-                    ->label('Avance')
-                    ->suffix('%'),
                 Tables\Columns\TextColumn::make('PROGCONS_FECHAINICIO')
                     ->label('Fecha Inicio')
-                    ->date(),
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('PROGCONS_ESTADO')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'planificacion' => 'success',
+                        'implementacion' => 'warning',
+                        'evaluacion' => 'info',
+                        default => 'secondary',
+                    })
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $monitoreos = $record->monitoreoProgramas()->orderBy('MONPRO_FECHA', 'desc')->take(5)->get();
+                        
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Programa de Conservación</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Nombre del Programa</div>
+                                        <div>{$record->PROGCONS_NOMBRE}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Fecha Inicio</div>
+                                        <div>{$record->PROGCONS_FECHAINICIO->format('d/m/Y')}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Fecha Fin</div>
+                                        <div>" . ($record->PROGCONS_FECHAFIN ? $record->PROGCONS_FECHAFIN->format('d/m/Y') : 'En curso') . "</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Estado</div>
+                                        <div>{$record->PROGCONS_ESTADO}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Presupuesto</div>
+                                        <div>$ {$record->PROGCONS_PRESUPUESTO}</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class='font-semibold'>Descripción</div>
+                                    <div class='mt-1'>{$record->PROGCONS_DESCRIPCION}</div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold mb-2'>Monitoreos Recientes</div>";
+                        
+                        if ($monitoreos->count() > 0) {
+                            $html .= "<div class='space-y-2'>";
+                            foreach ($monitoreos as $monitoreo) {
+                                $html .= "
+                                    <div class='bg-gray-50 p-2 rounded'>
+                                        <div>Fecha: {$monitoreo->MONPRO_FECHA->format('d/m/Y')}</div>
+                                        <div>Resultado: {$monitoreo->MONPRO_RESULTADO}</div>
+                                        <div>Observaciones: {$monitoreo->MONPRO_OBSERVACIONES}</div>
+                                    </div>";
+                            }
+                            $html .= "</div>";
+                        } else {
+                            $html .= "<div class='text-gray-500'>No hay monitoreos registrados</div>";
+                        }
+                        
+                        $html .= "
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

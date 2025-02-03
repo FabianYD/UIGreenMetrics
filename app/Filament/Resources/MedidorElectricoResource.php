@@ -56,18 +56,25 @@ class MedidorElectricoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('IDMEDIDOR2')
-                    ->label('ID')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('MEDAG_FECHAADQUISICION')
-                    ->label('Fecha de Adquisición')
-                    ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('MEDELE_NOMBRE')
+                    ->label('Medidor')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('MEDELE_UBICACION')
+                    ->label('Ubicación')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('MEDELE_ESTADO')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'activo' => 'success',
+                        'mantenimiento' => 'warning',
+                        'inactivo' => 'danger',
+                        default => 'secondary',
+                    })
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('CAMPUS_ID')

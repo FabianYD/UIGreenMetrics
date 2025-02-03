@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class DispositivoEficienteResource extends Resource
 {
@@ -64,35 +65,98 @@ class DispositivoEficienteResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('facultad.FACU_NOMBRE')
-                    ->label('Facultad')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('DISPEF_NOMBRE')
+                    ->label('Dispositivo')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('DISPEF_TIPO')
                     ->label('Tipo')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'grifo_sensor' => 'Grifo con Sensor',
-                        'inodoro_dual' => 'Inodoro de Doble Descarga',
-                        'urinario_seco' => 'Urinario Seco',
-                        'regadera_ahorradora' => 'Regadera Ahorradora',
-                        'medidor_inteligente' => 'Medidor Inteligente',
-                        'otro' => 'Otro',
-                        default => $state,
-                    }),
-                Tables\Columns\TextColumn::make('DISPEF_UBICACION')
-                    ->label('Ubicación')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('DISPEF_EFICIENCIA')
-                    ->label('Eficiencia')
-                    ->numeric(2)
-                    ->suffix('%')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('DISPEF_FECHAINSTALACION')
-                    ->label('Instalación')
-                    ->date()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('DISPEF_ESTADO')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'activo' => 'success',
+                        'mantenimiento' => 'warning',
+                        'inactivo' => 'danger',
+                        default => 'secondary',
+                    }),
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Dispositivo Eficiente</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Nombre del Dispositivo</div>
+                                        <div>{$record->DISPEF_NOMBRE}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Tipo</div>
+                                        <div>{$record->DISPEF_TIPO}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Estado</div>
+                                        <div>{$record->DISPEF_ESTADO}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Fecha de Instalación</div>
+                                        <div>{$record->DISPEF_FECHAINSTALACION->format('d/m/Y')}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Última Revisión</div>
+                                        <div>" . ($record->DISPEF_FECHAULTIMAREVISION ? $record->DISPEF_FECHAULTIMAREVISION->format('d/m/Y') : 'Sin revisión') . "</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class='font-semibold'>Ubicación</div>
+                                    <div class='mt-1'>{$record->DISPEF_UBICACION}</div>
+                                </div>
+
+                                <div>
+                                    <div class='font-semibold'>Características</div>
+                                    <div class='mt-1'>{$record->DISPEF_CARACTERISTICAS}</div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Mantenimiento</div>
+                                    <div class='mt-1'>
+                                        <div>Frecuencia: {$record->DISPEF_FRECUENCIAMANTENIMIENTO}</div>
+                                        <div>Próximo mantenimiento: " . ($record->DISPEF_FECHAPROXIMAREVISION ? $record->DISPEF_FECHAPROXIMAREVISION->format('d/m/Y') : 'No programado') . "</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Eficiencia</div>
+                                    <div class='mt-1'>
+                                        <div>Consumo anterior: {$record->DISPEF_CONSUMOANTERIOR} kWh/mes</div>
+                                        <div>Consumo actual: {$record->DISPEF_CONSUMOACTUAL} kWh/mes</div>
+                                        <div>Ahorro estimado: {$record->DISPEF_AHORROESTIMADO}%</div>
+                                    </div>
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('CAMPUS_ID')
@@ -111,10 +175,6 @@ class DispositivoEficienteResource extends Resource
                         'medidor_inteligente' => 'Medidor Inteligente',
                         'otro' => 'Otro'
                     ]),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

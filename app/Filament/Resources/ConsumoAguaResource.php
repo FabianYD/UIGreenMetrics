@@ -18,6 +18,7 @@ use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class ConsumoAguaResource extends Resource
 {
@@ -117,43 +118,89 @@ class ConsumoAguaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('medidorAgua.MEDAG_ID')
-                    ->label('Código del Medidor')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('medidorAgua.campus.CAMPUS_NOMBRES')
+                Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('CONSAG_TOTAL')
-                    ->label('Total Consumido')
-                    ->suffix(' m³')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('unidadMedida.MEDIDAAGU_NOMBRE')
-                    ->label('Unidad de Medida')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('costos.COSTOAG_TOTAL')
-                    ->label('Valor Total')
-                    ->prefix('$ ')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
                     ->sortable()
-                    ->color('success'),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('medidorAgua.MEDAG_NOMBRE')
+                    ->label('Medidor')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('CONSAG_FECHA')
+                    ->label('Fecha')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('CONSAG_CONSUMO')
+                    ->label('Consumo')
+                    ->numeric(2)
+                    ->suffix(' m³')
+                    ->sortable()
             ])
-            ->filters([ /*...*/ ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $tratamientos = $record->tratamientosAgua;
+                        $totalTratado = $tratamientos->sum('TRAGUA_TOTAL');
+                        $porcentajeTratado = $record->CONSAG_TOTAL > 0 ? round(($totalTratado / $record->CONSAG_TOTAL) * 100, 2) : 0;
+                        
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Consumo de Agua</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->medidorAgua->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Medidor</div>
+                                        <div>{$record->medidorAgua->MEDAG_NOMBRE}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Consumo Total</div>
+                                        <div>{$record->CONSAG_TOTAL} m³</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Fecha</div>
+                                        <div>{$record->CONSAG_FECHA->format('d/m/Y')}</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold mb-2'>Tratamientos de Agua</div>
+                                    <div class='mb-2'>Total tratado: {$totalTratado} m³ ({$porcentajeTratado}% del consumo)</div>";
+                        
+                        if ($tratamientos->count() > 0) {
+                            $html .= "<div class='space-y-2'>";
+                            foreach ($tratamientos as $tratamiento) {
+                                $totalReciclado = $tratamiento->aguasRecicladas()->sum('AGUAREC_CANTIDAD');
+                                $html .= "
+                                    <div class='bg-gray-50 p-2 rounded'>
+                                        <div>Tipo: {$tratamiento->tipoTratamiento->TIPOTRA_NOMBRES}</div>
+                                        <div>Cantidad: {$tratamiento->TRAGUA_TOTAL} m³ ({$tratamiento->TRAGUA_PORCENTAJE_TRATADO}%)</div>
+                                        <div>Reciclado: {$totalReciclado} m³ ({$tratamiento->TRAGUA_PORCENTAJE_RECICLADO}%)</div>
+                                        <div>Estado: {$tratamiento->TRAGUA_ESTADO_PROGRAMA}</div>
+                                    </div>";
+                            }
+                            $html .= "</div>";
+                        } else {
+                            $html .= "<div class='text-gray-500'>No hay tratamientos registrados</div>";
+                        }
+                        
+                        $html .= "
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->filters([ /*...*/ ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
             ])

@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class ControlContaminacionResource extends Resource
 {
@@ -40,15 +41,13 @@ class ControlContaminacionResource extends Resource
                     ->required()
                     ->label('Estado')
                     ->options([
-                        'planificacion' => 'En Planificación',
-                        'implementacion_temprana' => 'Implementación Temprana',
+                        'planificacion' => 'Planificación',
                         'implementacion_completa' => 'Implementación Completa',
-                        'evaluacion' => 'En Evaluación',
-                        'mantenimiento' => 'En Mantenimiento'
+                        'mantenimiento' => 'Mantenimiento',
                     ]),
                 Forms\Components\DatePicker::make('CONTAM_FECHAINICIO')
                     ->required()
-                    ->label('Fecha de Inicio'),
+                    ->label('Fecha'),
                 Forms\Components\Textarea::make('CONTAM_DESCRIPCION')
                     ->required()
                     ->label('Descripción')
@@ -62,41 +61,90 @@ class ControlContaminacionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('CONTAM_TIPO')
-                    ->label('Tipo')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'monitoreo_calidad' => 'Monitoreo de Calidad',
-                        'tratamiento_quimico' => 'Tratamiento Químico',
-                        'filtracion_avanzada' => 'Filtración Avanzada',
-                        'control_biologico' => 'Control Biológico',
-                        'otro' => 'Otro',
-                        default => $state,
-                    }),
-                Tables\Columns\TextColumn::make('CONTAM_ESTADO')
-                    ->label('Estado')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'planificacion' => 'En Planificación',
-                        'implementacion_temprana' => 'Implementación Temprana',
-                        'implementacion_completa' => 'Implementación Completa',
-                        'evaluacion' => 'En Evaluación',
-                        'mantenimiento' => 'En Mantenimiento',
-                        default => $state,
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'planificacion' => 'gray',
-                        'implementacion_temprana' => 'warning',
-                        'implementacion_completa' => 'success',
-                        'evaluacion' => 'info',
-                        'mantenimiento' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->label('Tipo de Control')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('CONTAM_FECHAINICIO')
-                    ->label('Fecha Inicio')
+                    ->label('Fecha')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('CONTAM_ESTADO')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'planificacion' => 'warning',
+                        'implementacion_completa' => 'success',
+                        'mantenimiento' => 'danger',
+                        default => 'secondary',
+                    })
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Control de Contaminación</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Tipo de Control</div>
+                                        <div>{$record->CONTAM_TIPO}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Fecha</div>
+                                        <div>{$record->CONTAM_FECHAINICIO->format('d/m/Y')}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Estado</div>
+                                        <div>{$record->CONTAM_ESTADO}</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class='font-semibold'>Ubicación</div>
+                                    <div class='mt-1'>{$record->CONTAM_UBICACION}</div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Mediciones</div>
+                                    <div class='grid grid-cols-2 gap-4 mt-2'>
+                                        <div>
+                                            <div class='font-semibold'>Nivel Medido</div>
+                                            <div>{$record->CONTAM_NIVELMEDIDO} {$record->CONTAM_UNIDADMEDIDA}</div>
+                                        </div>
+                                        <div>
+                                            <div class='font-semibold'>Nivel Permitido</div>
+                                            <div>{$record->CONTAM_NIVELPERMITIDO} {$record->CONTAM_UNIDADMEDIDA}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Observaciones</div>
+                                    <div class='mt-1'>{$record->CONTAM_OBSERVACIONES}</div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Acciones Correctivas</div>
+                                    <div class='mt-1'>" . ($record->CONTAM_ACCIONESCORRECTIVAS ? $record->CONTAM_ACCIONESCORRECTIVAS : 'No se han registrado acciones correctivas') . "</div>
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('CAMPUS_ID')
@@ -114,16 +162,10 @@ class ControlContaminacionResource extends Resource
                 Tables\Filters\SelectFilter::make('CONTAM_ESTADO')
                     ->label('Estado')
                     ->options([
-                        'planificacion' => 'En Planificación',
-                        'implementacion_temprana' => 'Implementación Temprana',
+                        'planificacion' => 'Planificación',
                         'implementacion_completa' => 'Implementación Completa',
-                        'evaluacion' => 'En Evaluación',
-                        'mantenimiento' => 'En Mantenimiento'
+                        'mantenimiento' => 'Mantenimiento',
                     ]),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

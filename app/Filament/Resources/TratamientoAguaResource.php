@@ -120,31 +120,25 @@ class TratamientoAguaResource extends Resource
                     ->numeric(2)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('TRAGUA_PORCENTAJE_TRATADO')
-                    ->label('% Tratado del Consumo')
-                    ->description('Porcentaje que representa del consumo total')
+                    ->label('% Tratado')
                     ->numeric(2)
                     ->suffix('%')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('aguasRecicladas')
-                    ->label('Agua Reciclada')
-                    ->formatStateUsing(function ($record) {
-                        $query = $record->aguasRecicladas();
-                        $totalReciclado = $query->sum('AGUAREC_CANTIDAD') ?? 0;
-                        $porcentajeTotal = $record->TRAGUA_PORCENTAJE_RECICLADO;
-                        
-                        if ($totalReciclado <= 0) {
-                            return 'No se ha reciclado agua aún';
-                        }
-                        
-                        $detalles = $query->get()->map(function($item) {
-                            return "- {$item->AGUAREC_CANTIDAD} m³ ({$item->AGUAREC_PORCENTAJE}%) - {$item->AGUAREC_DESTINO} - {$item->AGUAREC_FECHA}";
-                        })->join('<br>');
-                        
-                        return "Total: {$totalReciclado} m³ ({$porcentajeTotal}% del agua tratada)<br><small class='text-gray-500'>Detalles:<br>{$detalles}</small>";
-                    })
-                    ->html(),
+                Tables\Columns\TextColumn::make('TRAGUA_PORCENTAJE_RECICLADO')
+                    ->label('% Reciclado')
+                    ->numeric(2)
+                    ->suffix('%')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('TRAGUA_ESTADO_PROGRAMA')
                     ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'activo' => 'success',
+                        'pausado' => 'warning',
+                        'completado' => 'info',
+                        'cancelado' => 'danger',
+                        default => 'secondary',
+                    })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'activo' => 'Activo',
                         'pausado' => 'Pausado',
@@ -153,14 +147,77 @@ class TratamientoAguaResource extends Resource
                         default => $state,
                     }),
             ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $query = $record->aguasRecicladas();
+                        $totalReciclado = $query->sum('AGUAREC_CANTIDAD') ?? 0;
+                        
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Tratamiento de Agua</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->consumo->medidorAgua->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Tipo de Tratamiento</div>
+                                        <div>{$record->tipoTratamiento->TIPOTRA_NOMBRES}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Total Tratado</div>
+                                        <div>{$record->TRAGUA_TOTAL} m³</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Porcentaje del Consumo</div>
+                                        <div>{$record->TRAGUA_PORCENTAJE_TRATADO}%</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold mb-2'>Agua Reciclada</div>";
+                        
+                        if ($totalReciclado > 0) {
+                            $html .= "
+                                    <div class='mb-2'>Total reciclado: {$totalReciclado} m³ ({$record->TRAGUA_PORCENTAJE_RECICLADO}%)</div>
+                                    <div class='space-y-2'>";
+                            
+                            foreach ($query->get() as $item) {
+                                $html .= "
+                                        <div class='bg-gray-50 p-2 rounded'>
+                                            <div>Cantidad: {$item->AGUAREC_CANTIDAD} m³ ({$item->AGUAREC_PORCENTAJE}%)</div>
+                                            <div>Destino: {$item->AGUAREC_DESTINO}</div>
+                                            <div>Fecha: {$item->AGUAREC_FECHA}</div>
+                                        </div>";
+                            }
+                            
+                            $html .= "
+                                    </div>";
+                        } else {
+                            $html .= "
+                                    <div class='text-gray-500'>No se ha reciclado agua aún</div>";
+                        }
+                        
+                        $html .= "
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('TIPOTRA_COD')
                     ->label('Tipo de Tratamiento')
                     ->relationship('tipoTratamiento', 'TIPOTRA_NOMBRES'),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

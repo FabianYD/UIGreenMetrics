@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class MonitoreoProgramaResource extends Resource
 {
@@ -65,31 +66,91 @@ class MonitoreoProgramaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
+                Tables\Columns\TextColumn::make('programaConservacion.campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('empleado.EMP_NOMBRES')
-                    ->label('Responsable')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('MONIT_TIPO')
-                    ->label('Tipo')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'consumo' => 'Consumo de Agua',
-                        'calidad' => 'Calidad del Agua',
-                        'eficiencia' => 'Eficiencia de Dispositivos',
-                        'reciclaje' => 'Reciclaje de Agua',
-                        'otro' => 'Otro',
-                        default => $state,
-                    }),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('programaConservacion.PROGCONS_NOMBRE')
+                    ->label('Programa')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('MONIT_FECHA')
                     ->label('Fecha')
                     ->date()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('MONIT_USO_TIC')
-                    ->label('Usa TICs')
-                    ->boolean(),
+                Tables\Columns\TextColumn::make('MONIT_RESULTADO')
+                    ->label('Resultado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'satisfactorio' => 'success',
+                        'en_proceso' => 'warning',
+                        'insatisfactorio' => 'danger',
+                        default => 'secondary',
+                    })
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Monitoreo</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$record->programaConservacion->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Programa</div>
+                                        <div>{$record->programaConservacion->PROGCONS_NOMBRE}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Fecha</div>
+                                        <div>{$record->MONIT_FECHA->format('d/m/Y')}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Resultado</div>
+                                        <div>{$record->MONIT_RESULTADO}</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class='font-semibold'>Observaciones</div>
+                                    <div class='mt-1'>{$record->MONIT_OBSERVACIONES}</div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Detalles del Programa</div>
+                                    <div class='grid grid-cols-2 gap-4 mt-2'>
+                                        <div>
+                                            <div class='font-semibold'>Estado del Programa</div>
+                                            <div>{$record->programaConservacion->PROGCONS_ESTADO}</div>
+                                        </div>
+                                        <div>
+                                            <div class='font-semibold'>Fecha Inicio</div>
+                                            <div>{$record->programaConservacion->PROGCONS_FECHAINICIO->format('d/m/Y')}</div>
+                                        </div>
+                                    </div>
+                                    <div class='mt-2'>
+                                        <div class='font-semibold'>Descripción del Programa</div>
+                                        <div class='mt-1'>{$record->programaConservacion->PROGCONS_DESCRIPCION}</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold'>Acciones Recomendadas</div>
+                                    <div class='mt-1'>" . ($record->MONIT_ACCIONESRECOMENDADAS ? $record->MONIT_ACCIONESRECOMENDADAS : 'No se han registrado acciones recomendadas') . "</div>
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('CAMPUS_ID')
@@ -125,11 +186,6 @@ class MonitoreoProgramaResource extends Resource
                                 fn ($query) => $query->whereDate('MONIT_FECHA', '<=', $data['hasta'])
                             );
                     })
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

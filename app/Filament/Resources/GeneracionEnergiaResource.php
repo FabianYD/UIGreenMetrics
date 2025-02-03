@@ -69,28 +69,22 @@ class GeneracionEnergiaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tipoGeneracion.GENTYPE_DETALLE')
-                    ->label('Tipo de Generación')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('facultad.FACU_NOMBRE')
-                    ->label('Facultad')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('GENENE_TOTAL')
-                    ->label('Total Generado')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('campus.CAMPUS_NOMBRES')
+                    ->label('Campus')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('GENENE_TIPO')
                     ->label('Tipo')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('GENENE_FECHA')
                     ->label('Fecha')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('GENENE_CONSUMO')
-                    ->label('Consumo')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('GENENE_CANTIDAD')
+                    ->label('Cantidad')
+                    ->numeric(2)
+                    ->suffix(' kWh')
+                    ->sortable()
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('GENTYPE_ID')

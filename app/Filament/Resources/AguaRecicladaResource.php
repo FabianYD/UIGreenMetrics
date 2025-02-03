@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class AguaRecicladaResource extends Resource
 {
@@ -100,23 +101,91 @@ class AguaRecicladaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tratamiento.consumo.medidorAgua.campus.CAMPUS_NOMBRES')
+                Tables\Columns\TextColumn::make('tratamientoAgua.campus.CAMPUS_NOMBRES')
                     ->label('Campus')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('AGUAREC_FECHA')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('AGREC_FECHA')
                     ->label('Fecha')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tratamiento.tipoTratamiento.TIPOTRA_NOMBRES')
-                    ->label('Tipo de Tratamiento')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('AGUAREC_CANTIDAD')
-                    ->label('Cantidad (m³)')
+                Tables\Columns\TextColumn::make('AGREC_CANTIDAD')
+                    ->label('Cantidad')
                     ->numeric(2)
+                    ->suffix(' m³')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('AGREC_PORCENTAJE')
+                    ->label('Porcentaje')
+                    ->numeric(2)
+                    ->suffix('%')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('AGUAREC_DESTINO')
                     ->label('Destino')
                     ->searchable(),
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(function ($record) {
+                        $tratamiento = $record->tratamiento;
+                        
+                        $html = "
+                            <div class='space-y-4'>
+                                <div class='text-xl font-bold'>Detalles del Agua Reciclada</div>
+                                
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Campus</div>
+                                        <div>{$tratamiento->consumo->medidorAgua->campus->CAMPUS_NOMBRES}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Tipo de Tratamiento</div>
+                                        <div>{$tratamiento->tipoTratamiento->TIPOTRA_NOMBRES}</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Cantidad Reciclada</div>
+                                        <div>{$record->AGUAREC_CANTIDAD} m³</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Porcentaje del Tratamiento</div>
+                                        <div>{$record->AGUAREC_PORCENTAJE}%</div>
+                                    </div>
+                                </div>
+
+                                <div class='grid grid-cols-2 gap-4'>
+                                    <div>
+                                        <div class='font-semibold'>Destino</div>
+                                        <div>{$record->AGUAREC_DESTINO}</div>
+                                    </div>
+                                    <div>
+                                        <div class='font-semibold'>Fecha</div>
+                                        <div>{$record->AGUAREC_FECHA->format('d/m/Y')}</div>
+                                    </div>
+                                </div>
+
+                                <div class='border-t pt-4 mt-4'>
+                                    <div class='font-semibold mb-2'>Información del Tratamiento</div>
+                                    <div class='grid grid-cols-2 gap-4'>
+                                        <div>
+                                            <div class='font-semibold'>Total Tratado</div>
+                                            <div>{$tratamiento->TRAGUA_TOTAL} m³</div>
+                                        </div>
+                                        <div>
+                                            <div class='font-semibold'>Total Reciclado</div>
+                                            <div>{$tratamiento->aguasRecicladas()->sum('AGUAREC_CANTIDAD')} m³ ({$tratamiento->TRAGUA_PORCENTAJE_RECICLADO}%)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>";
+                        
+                        return new HtmlString($html);
+                    })
+                    ->modalWidth('xl')
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('tratamiento')
@@ -140,10 +209,6 @@ class AguaRecicladaResource extends Resource
                                 fn (Builder $query, $date): Builder => $query->whereDate('AGUAREC_FECHA', '<=', $date),
                             );
                     })
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
