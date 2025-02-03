@@ -6,10 +6,20 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/filament.css',
                 'resources/js/app.js',
-                'resources/css/filament.css'
             ],
             refresh: true,
         }),
     ],
+    build: {
+        outDir: 'public/build',
+        assetsDir: '',
+        manifest: true,
+        rollupOptions: {
+            output: {
+                manualChunks: undefined,
+            },
+        },
+    },
 });
