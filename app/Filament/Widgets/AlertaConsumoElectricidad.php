@@ -4,10 +4,11 @@ namespace App\Filament\Widgets;
 
 use Illuminate\Support\Facades\DB;
 use Filament\Widgets\ChartWidget;
+use Filament\Notifications\Notification;
 
 class AlertaConsumoElectricidad extends ChartWidget
 {
-    protected static ?string $heading = 'Control Humbral Consumo Electricidad';
+    protected static ?string $heading = 'Control Umbral Consumo Electricidad';
     protected static ?string $pollingInterval = '15s';
     protected static ?string $maxHeight = '900px';
     protected static ?int $sort = 8;
@@ -18,7 +19,8 @@ class AlertaConsumoElectricidad extends ChartWidget
         $consumosElectricidad = DB::table('GM_WEC_CONSUMO_ENERGIAS')
             ->select(
                 DB::raw('DATE_FORMAT(CONSENE_FECHAPAGO, "%Y-%m") as mes'),
-                DB::raw('SUM(CONSENE_TOTAL) as total_energia')
+                DB::raw('SUM(CONSENE_TOTAL) as total_energia'),
+                DB::raw('MAX(CONSENE_FECHAPAGO) as ultima_fecha')
             )
             ->groupBy(DB::raw('DATE_FORMAT(CONSENE_FECHAPAGO, "%Y-%m")'))
             ->orderBy('mes')
@@ -29,9 +31,12 @@ class AlertaConsumoElectricidad extends ChartWidget
             return now()->startOfYear()->addMonths($i)->format('Y-m');
         });
 
-        $umbral = 8000; // Umbral ajustado para electricidad
+        $umbral = 6000; // Umbral ajustado para electricidad
         $dataBlue = [];
         $dataRed = [];
+        $ultimoConsumo = 0;
+        $ultimaFechaConsumo = null;
+
         $labelsFormateadas = $allMonths->map(function ($fecha) {
             $meses = [
                 '01' => 'Ene', '02' => 'Feb', '03' => 'Mar', '04' => 'Abr',
@@ -43,7 +48,14 @@ class AlertaConsumoElectricidad extends ChartWidget
         });
 
         foreach ($allMonths as $month) {
-            $energia = $consumosElectricidad->firstWhere('mes', $month)->total_energia ?? 0;
+            $registro = $consumosElectricidad->firstWhere('mes', $month);
+            $energia = $registro->total_energia ?? 0;
+            $fecha = $registro->ultima_fecha ?? null;
+
+            if ($energia > 0) { // Si hay consumo, se guarda como el último registrado
+                $ultimoConsumo = $energia;
+                $ultimaFechaConsumo = $fecha;
+            }
 
             if ($energia > $umbral) {
                 $dataRed[] = $energia - $umbral;
@@ -53,6 +65,9 @@ class AlertaConsumoElectricidad extends ChartWidget
                 $dataRed[] = 0;
             }
         }
+
+        // Enviar notificación si el consumo supera el umbral
+        $this->calcularConsumoEnergia($ultimoConsumo, $umbral, $ultimaFechaConsumo);
 
         return [
             'datasets' => [
@@ -78,5 +93,19 @@ class AlertaConsumoElectricidad extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+
+    public function calcularConsumoEnergia($consumo, $umbral, $fecha): void
+    {
+        $fechaFormateada = $fecha ? date('d/m/Y', strtotime($fecha)) : 'Fecha desconocida';
+        $esExceso = $consumo > $umbral;
+
+        Notification::make()
+            ->title($esExceso ? '⚡ ¡Alerta de Consumo de Electricidad!' : '✅ Consumo dentro del límite')
+            ->body("Fecha: $fechaFormateada \nTotal consumido: $consumo kWh. \n" . 
+                   ($esExceso ? "Se ha superado el umbral de $umbral kWh." : "Está dentro del umbral de $umbral kWh."))
+            ->{$esExceso ? 'danger' : 'success'}()
+            #->duration(10) // La notificación desaparecerá después de 10 segundos
+            ->send();
     }
 }

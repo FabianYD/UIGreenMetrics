@@ -78,7 +78,8 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\ConsumoPorCampusChart::class,
                 #\App\Filament\Widgets\TendenciaMensualChart::class,
                \App\Filament\Widgets\AlertaConsumoAgua::class,
-               #\App\Filament\Widgets\AlertaConsumoElectricidad::class,
+               \App\Filament\Widgets\AlertaConsumoElectricidad::class,
+                \App\Filament\Widgets\ConsumoFacultad::class,
 
             ])
             ->middleware([

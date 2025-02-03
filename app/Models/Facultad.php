@@ -33,4 +33,13 @@ class Facultad extends Model
     {
         return $this->hasMany(GeneracionEnergia::class, 'FACU_CODIGO', 'FACU_CODIGO');
     }
+    public function consumosAgua()
+   {
+    return $this->hasMany(ConsumoAgua::class, 'FACU_CODIGO', 'FACU_CODIGO');
+   }
+
+   public function consumosEnergia()
+   {
+    return $this->hasMany(ConsumoEnergia::class, 'FACU_CODIGO', 'FACU_CODIGO');
+   }
 }
