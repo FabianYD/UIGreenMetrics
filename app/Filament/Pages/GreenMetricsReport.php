@@ -50,17 +50,26 @@ class GreenMetricsReport extends Page
 
     public function getTreatedWaterPercentage()
     {
+        $totalTratado = TratamientoAgua::sum('TRAGUA_TOTAL') ?: 0;
         $totalConsumo = ConsumoAgua::sum('CONSAG_TOTAL') ?: 1;
-        $aguaTratada = ConsumoAgua::where('CONSAG_ES_TRATADA', true)->sum('CONSAG_TOTAL') ?: 0;
         
-        return ($aguaTratada / $totalConsumo) * 100;
+        return ($totalTratado / $totalConsumo) * 100;
     }
 
     public function getPollutionControlStatus()
     {
         $control = ControlContaminacion::orderBy('CONTAM_FECHAINICIO', 'desc')->first();
         
-        return $control ? $control->CONTAM_ESTADO : 'sin_implementar';
+        if (!$control) {
+            return 'sin_implementar';
+        }
+
+        return match ($control->CONTAM_ESTADO) {
+            'planificacion' => 'planificacion',
+            'implementacion_temprana' => 'implementacion_temprana',
+            'implementacion_completa' => 'implementacion_completa',
+            default => 'sin_implementar',
+        };
     }
 
     protected function getViewData(): array
