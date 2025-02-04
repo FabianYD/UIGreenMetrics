@@ -24,13 +24,17 @@ class ProgramaConservacionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('CAMPUS_ID')
                     ->relationship('campus', 'CAMPUS_NOMBRES')
+                    ->label('Campus')
                     ->required(),
                 Forms\Components\TextInput::make('PROGCONS_NOMBRE')
+                    ->label('Nombre del Programa')
                     ->required()
                     ->maxLength(100),
                 Forms\Components\Textarea::make('PROGCONS_DESCRIPCION')
+                    ->label('Descripción')
                     ->maxLength(65535),
                 Forms\Components\Select::make('PROGCONS_ESTADO')
+                    ->label('Estado del Programa')
                     ->options([
                         'planificacion' => 'Planificación',
                         'implementacion' => 'Implementación',
@@ -38,9 +42,12 @@ class ProgramaConservacionResource extends Resource
                     ])
                     ->required(),
                 Forms\Components\DatePicker::make('PROGCONS_FECHAINICIO')
+                    ->label('Fecha de Inicio')
                     ->required(),
-                Forms\Components\DatePicker::make('PROGCONS_FECHAFIN'),
+                Forms\Components\DatePicker::make('PROGCONS_FECHAFIN')
+                    ->label('Fecha de Finalización'),
                 Forms\Components\TextInput::make('PROGCONS_AVANCE')
+                    ->label('Porcentaje de Avance')
                     ->numeric()
                     ->minValue(0)
                     ->maxValue(100)
@@ -56,15 +63,24 @@ class ProgramaConservacionResource extends Resource
                     ->label('Campus')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('PROGCONS_NOMBRE')
-                    ->label('Nombre')
+                    ->label('Nombre del Programa')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('PROGCONS_ESTADO')
-                    ->label('Estado'),
+                    ->label('Estado')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'planificacion' => 'Planificación',
+                        'implementacion' => 'Implementación',
+                        'evaluacion' => 'Evaluación',
+                        default => $state,
+                    }),
                 Tables\Columns\TextColumn::make('PROGCONS_AVANCE')
                     ->label('Avance')
                     ->suffix('%'),
                 Tables\Columns\TextColumn::make('PROGCONS_FECHAINICIO')
-                    ->label('Fecha Inicio')
+                    ->label('Fecha de Inicio')
+                    ->date(),
+                Tables\Columns\TextColumn::make('PROGCONS_FECHAFIN')
+                    ->label('Fecha de Finalización')
                     ->date(),
             ])
             ->filters([
