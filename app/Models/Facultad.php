@@ -28,6 +28,7 @@ class Facultad extends Model
     {
         return $this->belongsTo(Campus::class, 'CAMPUS_ID', 'CAMPUS_ID');
     }
+    
 
     public function generacionEnergias()
     {
@@ -42,4 +43,6 @@ class Facultad extends Model
    {
     return $this->hasMany(ConsumoEnergia::class, 'FACU_CODIGO', 'FACU_CODIGO');
    }
+
+   
 }
