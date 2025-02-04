@@ -1,0 +1,1 @@
+DELETE FROM gm_wec_roles WHERE ROL_COD = 'OPE'; 
