@@ -25,7 +25,7 @@
                  x-transition:enter-start="opacity-0 transform scale-95"
                  x-transition:enter-end="opacity-100 transform scale-100"
                  class="w-full h-full">
-                <iframe src="https://greenmetrics.azurewebsites.net/"
+                <iframe src="https://gmwsi.azurewebsites.net/"
                         class="w-full h-full border-0"
                         style="transition: all 0.3s ease-in-out;">
                 </iframe>
