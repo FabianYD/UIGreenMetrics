@@ -25,13 +25,17 @@ class ProgramaConservacionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('CAMPUS_ID')
                     ->relationship('campus', 'CAMPUS_NOMBRES')
+                    ->label('Campus')
                     ->required(),
                 Forms\Components\TextInput::make('PROGCONS_NOMBRE')
+                    ->label('Nombre del Programa')
                     ->required()
                     ->maxLength(100),
                 Forms\Components\Textarea::make('PROGCONS_DESCRIPCION')
+                    ->label('Descripción')
                     ->maxLength(65535),
                 Forms\Components\Select::make('PROGCONS_ESTADO')
+                    ->label('Estado del Programa')
                     ->options([
                         'planificacion' => 'Planificación',
                         'implementacion' => 'Implementación',
@@ -39,9 +43,12 @@ class ProgramaConservacionResource extends Resource
                     ])
                     ->required(),
                 Forms\Components\DatePicker::make('PROGCONS_FECHAINICIO')
+                    ->label('Fecha de Inicio')
                     ->required(),
-                Forms\Components\DatePicker::make('PROGCONS_FECHAFIN'),
+                Forms\Components\DatePicker::make('PROGCONS_FECHAFIN')
+                    ->label('Fecha de Finalización'),
                 Forms\Components\TextInput::make('PROGCONS_AVANCE')
+                    ->label('Porcentaje de Avance')
                     ->numeric()
                     ->minValue(0)
                     ->maxValue(100)
@@ -58,21 +65,28 @@ class ProgramaConservacionResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('PROGCONS_NOMBRE')
-                    ->label('Programa')
+                    ->label('Nombre del Programa')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('PROGCONS_FECHAINICIO')
-                    ->label('Fecha Inicio')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('PROGCONS_ESTADO')
                     ->label('Estado')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'planificacion' => 'success',
-                        'implementacion' => 'warning',
-                        'evaluacion' => 'info',
-                        default => 'secondary',
-                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'planificacion' => 'Planificación',
+                        'implementacion' => 'Implementación',
+                        'evaluacion' => 'Evaluación',
+                        default => $state,
+                    }),
+                Tables\Columns\TextColumn::make('PROGCONS_AVANCE')
+                    ->label('Avance')
+                    ->suffix('%'),
+                Tables\Columns\TextColumn::make('PROGCONS_FECHAINICIO')
+                    ->label('Fecha de Inicio')
+                    ->date(),
+                Tables\Columns\TextColumn::make('PROGCONS_FECHAFIN')
+                    ->label('Fecha de Finalización')
+                    ->date(),
+            ])
+            ->filters([
+                //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
